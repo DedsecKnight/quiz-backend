@@ -29,6 +29,8 @@ export class Submission extends BaseEntity {
 
     @Column()
     quizId: number;
+
+    @Field(() => Quiz)
     @ManyToOne(() => Quiz, (quiz: Quiz) => quiz.submissions)
     @JoinColumn({ name: "quizId" })
     quiz: Quiz;

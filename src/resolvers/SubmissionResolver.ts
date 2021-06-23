@@ -1,3 +1,4 @@
+import { injectable } from "inversify";
 import {
     Arg,
     Field,
@@ -10,11 +11,16 @@ import {
     Root,
 } from "type-graphql";
 import { Mutation } from "type-graphql";
-import { Answer } from "../entity/Answer";
 import { Submission } from "../entity/Submission";
 
+import { container } from "../inversify.config";
+import getDecorators from "inversify-inject-decorators";
+import { TYPES } from "../types/types";
+import { ISubmissionRepo, SubmissionArg } from "../interfaces/ISubmissionRepo";
+const { lazyInject } = getDecorators(container);
+
 @InputType()
-class SubmitInput {
+class SubmitInput implements SubmissionArg {
     @Field(() => ID)
     userId: number;
 
@@ -25,62 +31,38 @@ class SubmitInput {
     answers: number[];
 }
 
+@injectable()
 @Resolver(Submission)
 export class SubmissionResolver {
+    @lazyInject(TYPES.ISubmissionRepo) private _submissionRepo: ISubmissionRepo;
+
     @Mutation(() => Submission)
     async submit(
-        @Arg("submitInput") { quizId, answers, userId }: SubmitInput
+        @Arg("submitInput") submissionArg: SubmitInput
     ): Promise<Submission> {
-        const newSubmission = await Submission.create({
-            userId,
-            quizId,
-        }).save();
-        answers.forEach(async (answerId) => {
-            const fetchedAnswer = await Answer.findOne({
-                id: answerId,
-            });
-            await Submission.createQueryBuilder()
-                .relation(Submission, "answers")
-                .of(newSubmission)
-                .add(fetchedAnswer);
-        });
-        return Submission.findOne(
-            {
-                id: newSubmission.id,
-            },
-            {
-                relations: ["answers"],
-            }
-        );
+        try {
+            const newSubmission = await this._submissionRepo.createSubmission(
+                submissionArg
+            );
+            return newSubmission;
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     @Query(() => Submission)
-    async submissionById(@Arg("id") id: number): Promise<Submission | null> {
-        const submissionObj = await Submission.findOne(
-            {
-                id,
-            },
-            {
-                relations: ["answers", "answers.submissions"],
-            }
-        );
-        if (!submissionObj) return null;
-        return submissionObj;
+    async submissionById(@Arg("id") id: number): Promise<Submission> {
+        const submission = await this._submissionRepo.findById(id);
+        if (!submission) throw new Error("Submission does not exist");
+        return submission;
     }
 
     @FieldResolver(() => Int)
     async score(@Root() submission: Submission): Promise<number> {
-        const subObj = await Submission.findOne(
-            {
-                id: submission.id,
-            },
-            {
-                relations: ["answers"],
-            }
-        );
-        return Math.floor(
-            (subObj.answers.filter((answer) => answer.isCorrect).length * 100) /
-                subObj.answers.length
-        );
+        try {
+            return this._submissionRepo.getScore(submission.id);
+        } catch (error) {
+            console.log(error);
+        }
     }
 }

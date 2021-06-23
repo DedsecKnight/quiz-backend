@@ -5,5 +5,8 @@ export const checkAuthorization: MiddlewareFn<TContext> = async (
     { context },
     next
 ) => {
+    context.user = {
+        id: 18,
+    };
     return next();
 };

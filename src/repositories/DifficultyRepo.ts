@@ -1,14 +1,12 @@
-import { EntityRepository, Repository } from "typeorm";
+import { injectable } from "inversify";
 import { Difficulty } from "../entity/Difficulty";
+import { Quiz } from "../entity/Quiz";
 import { IDifficultyRepo } from "../interfaces/IDifficultyRepo";
 
-@EntityRepository(Difficulty)
-export class DifficultyRepo
-    extends Repository<Difficulty>
-    implements IDifficultyRepo
-{
+@injectable()
+export class DifficultyRepo implements IDifficultyRepo {
     async initialize(): Promise<void> {
-        const difficultyList = await this.find();
+        const difficultyList = await Difficulty.find();
         if (!difficultyList.length) {
             ["Easy", "Normal", "Hard"].forEach(async (type) => {
                 const newDiff = Difficulty.create({
@@ -19,21 +17,25 @@ export class DifficultyRepo
         }
     }
 
-    async getQuizzes(type: string): Promise<Difficulty | null> {
-        const difficultyObj = await this.findOne(
-            {
+    async getQuizzes(type: string): Promise<Quiz[]> {
+        const diffObj = await Difficulty.findOne({
+            relations: [
+                "quizzes",
+                "quizzes.questions",
+                "quizzes.questions.answers",
+                "quizzes.category",
+            ],
+            where: {
                 type,
             },
-            {
-                relations: [
-                    "quizzes",
-                    "quizzes.questions",
-                    "quizzes.questions.answers",
-                    "quizzes.category",
-                ],
-            }
-        );
-        if (!difficultyObj) return null;
-        return difficultyObj;
+        });
+        if (!diffObj) return [];
+        return diffObj.quizzes;
+    }
+
+    async getObjByType(type: string): Promise<Difficulty> {
+        return Difficulty.findOne({
+            type,
+        });
     }
 }

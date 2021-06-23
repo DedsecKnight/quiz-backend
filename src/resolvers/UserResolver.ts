@@ -1,76 +1,66 @@
-import { Resolver, Query, Mutation, Arg } from "type-graphql";
+import {
+    Resolver,
+    Query,
+    Mutation,
+    Arg,
+    InputType,
+    Ctx,
+    UseMiddleware,
+} from "type-graphql";
 import { User } from "../entity/User";
-import * as bcrypt from "bcrypt";
+import { injectable } from "inversify";
+import { TYPES } from "../types/types";
+import { IUserRepo, AuthResponse } from "../interfaces/IUserRepo";
+import { Submission } from "../entity/Submission";
+import { ISubmissionRepo } from "../interfaces/ISubmissionRepo";
 
+import getDecorators from "inversify-inject-decorators";
+import { container } from "../inversify.config";
+import { checkAuthorization } from "../middlewares/auth";
+import { TContext } from "../types/TContext";
+const { lazyInject } = getDecorators(container);
+
+@injectable()
 @Resolver(User)
 export class UserResolver {
+    @lazyInject(TYPES.IUserRepo) private _userRepo: IUserRepo;
+    @lazyInject(TYPES.ISubmissionRepo) private _submissionRepo: ISubmissionRepo;
+
     @Query(() => [User])
     async users(): Promise<User[]> {
-        try {
-            const users = await User.find();
-            return users;
-        } catch (error) {
-            throw new Error(error.message);
-        }
+        return this._userRepo.getAll();
     }
 
-    @Query(() => String)
+    @Mutation(() => AuthResponse)
     async login(
         @Arg("email") email: string,
         @Arg("password") password: string
-    ): Promise<String> {
-        try {
-            const existingUser = await User.findOne({
-                email,
-            });
-            if (!existingUser) throw new Error("No such user exists");
-
-            const validPassword = await bcrypt.compare(
-                password,
-                existingUser.password
-            );
-            if (!validPassword) throw new Error("Invalid credentials");
-            return "TokenGoesHere";
-        } catch (error) {
-            console.log(error.message);
-        }
+    ): Promise<AuthResponse> {
+        return this._userRepo.loginUser(email, password);
     }
 
     @Query(() => User)
-    async me(@Arg("userId") userId: number): Promise<User | null> {
-        const user = await User.findOne(
-            {
-                id: userId,
-            },
-            {
-                relations: ["submissions"],
-            }
-        );
-        if (!user) return null;
+    @UseMiddleware(checkAuthorization)
+    async myInfo(
+        @Arg("userId") userId: number,
+        @Ctx() context: TContext
+    ): Promise<User> {
+        const user = await this._userRepo.findById(context.user.id);
+        if (!user) throw new Error("User Not Found");
         return user;
     }
 
-    @Mutation(() => String)
+    @Query(() => [Submission])
+    async mySubmissions(@Arg("userId") userId: number): Promise<Submission[]> {
+        return this._submissionRepo.getUserSubmissions(userId);
+    }
+
+    @Mutation(() => AuthResponse)
     async registerUser(
         @Arg("name") name: string,
         @Arg("email") email: string,
         @Arg("password") password: string
-    ): Promise<String> {
-        try {
-            const existingUser = await User.findOne({ email });
-            if (existingUser) throw new Error("Email is already used");
-
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-            await User.create({
-                name,
-                email,
-                password: hashedPassword,
-            }).save();
-
-            return "TokenGoesHere";
-        } catch (error) {
-            console.log(error.message);
-        }
+    ): Promise<AuthResponse> {
+        return this._userRepo.registerUser(name, email, password);
     }
 }
