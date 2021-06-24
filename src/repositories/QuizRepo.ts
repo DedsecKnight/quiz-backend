@@ -75,26 +75,24 @@ export class QuizRepo implements IQuizRepo {
     }
     async findAll(): Promise<Quiz[]> {
         return Quiz.find({
-            relations: [
-                "difficulty",
-                "questions",
-                "questions.answers",
-                "submissions",
-                "category",
-            ],
+            relations: ["difficulty", "category", "author"],
         });
     }
 
-    async findById(id: number) : Promise<Quiz> {
-        return Quiz.findOne({ id }, {
-            relations: [
-                "difficulty",
-                "questions",
-                "questions.answers",
-                "submissions",
-                "category",
-            ],
-        });
+    async findById(id: number): Promise<Quiz> {
+        return Quiz.findOne(
+            { id },
+            {
+                relations: [
+                    "difficulty",
+                    "questions",
+                    "questions.answers",
+                    "submissions",
+                    "category",
+                    "author",
+                ],
+            }
+        );
     }
 
     async findByAuthor(authorId: number): Promise<Quiz[]> {
@@ -104,9 +102,9 @@ export class QuizRepo implements IQuizRepo {
                 "questions",
                 "questions.answers",
                 "submissions",
-                "category"
+                "category",
             ],
-            where: { authorId }
+            where: { authorId },
         });
     }
 }

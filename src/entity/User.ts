@@ -31,6 +31,7 @@ export class User extends BaseEntity {
     @OneToMany(() => Submission, (submission: Submission) => submission.user)
     submissions: Submission[];
 
+    @Field(() => [Quiz])
     @OneToMany(() => Quiz, (quiz: Quiz) => quiz.author)
     quizzes: Quiz[];
 }

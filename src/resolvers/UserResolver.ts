@@ -20,11 +20,16 @@ import { checkAuthorization } from "../middlewares/auth";
 import { TContext } from "../types/TContext";
 const { lazyInject } = getDecorators(container);
 
+import { UserInputError } from "apollo-server-errors";
+import { Quiz } from "../entity/Quiz";
+import { IQuizRepo } from "../interfaces/IQuizRepo";
+
 @injectable()
 @Resolver(User)
 export class UserResolver {
     @lazyInject(TYPES.IUserRepo) private _userRepo: IUserRepo;
     @lazyInject(TYPES.ISubmissionRepo) private _submissionRepo: ISubmissionRepo;
+    @lazyInject(TYPES.IQuizRepo) private _quizRepo: IQuizRepo;
 
     @Query(() => [User])
     async users(): Promise<User[]> {
@@ -41,18 +46,16 @@ export class UserResolver {
 
     @Query(() => User)
     @UseMiddleware(checkAuthorization)
-    async myInfo(
-        @Arg("userId") userId: number,
-        @Ctx() context: TContext
-    ): Promise<User> {
+    async myInfo(@Ctx() context: TContext): Promise<User> {
         const user = await this._userRepo.findById(context.user.id);
-        if (!user) throw new Error("User Not Found");
+        if (!user) throw new UserInputError("User Not Found");
         return user;
     }
 
     @Query(() => [Submission])
-    async mySubmissions(@Arg("userId") userId: number): Promise<Submission[]> {
-        return this._submissionRepo.getUserSubmissions(userId);
+    @UseMiddleware(checkAuthorization)
+    async mySubmissions(@Ctx() context: TContext): Promise<Submission[]> {
+        return this._submissionRepo.getUserSubmissions(context.user.id);
     }
 
     @Mutation(() => AuthResponse)
@@ -62,5 +65,11 @@ export class UserResolver {
         @Arg("password") password: string
     ): Promise<AuthResponse> {
         return this._userRepo.registerUser(name, email, password);
+    }
+
+    @Query(() => [Quiz])
+    @UseMiddleware(checkAuthorization)
+    async myQuizzes(@Ctx() context: TContext): Promise<Quiz[]> {
+        return this._quizRepo.findByAuthor(context.user.id);
     }
 }

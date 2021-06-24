@@ -1,10 +1,10 @@
 import { Request } from "express";
 import { IncomingHttpHeaders } from "http2";
 
-interface UserHeader {
+export interface UserData {
     id: number;
 }
 
 export interface TContext extends Request {
-    user: UserHeader;
+    user: UserData;
 }

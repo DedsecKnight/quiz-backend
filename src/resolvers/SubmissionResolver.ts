@@ -17,6 +17,7 @@ import { container } from "../inversify.config";
 import getDecorators from "inversify-inject-decorators";
 import { TYPES } from "../types/types";
 import { ISubmissionRepo, SubmissionArg } from "../interfaces/ISubmissionRepo";
+import { ResourceNotFound } from "../errors/ResourceNotFound";
 const { lazyInject } = getDecorators(container);
 
 @InputType()
@@ -53,7 +54,8 @@ export class SubmissionResolver {
     @Query(() => Submission)
     async submissionById(@Arg("id") id: number): Promise<Submission> {
         const submission = await this._submissionRepo.findById(id);
-        if (!submission) throw new Error("Submission does not exist");
+        if (!submission)
+            throw new ResourceNotFound("Submission does not exist");
         return submission;
     }
 

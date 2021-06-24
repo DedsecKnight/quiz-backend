@@ -2,6 +2,9 @@ import { User } from "../entity/User";
 import { IUserRepo, AuthResponse } from "../interfaces/IUserRepo";
 import * as bcrypt from "bcrypt";
 import { injectable } from "inversify";
+import { AuthenticationError, UserInputError } from "apollo-server";
+import { ResourceNotFound } from "../errors/ResourceNotFound";
+import { generateToken } from "../jwt/jwt";
 
 @injectable()
 export class UserRepo implements IUserRepo {
@@ -29,27 +32,20 @@ export class UserRepo implements IUserRepo {
         try {
             const existingUser = await this.findByEmail(email);
             if (!existingUser)
-                return {
-                    statusCode: 401,
-                    token: "",
-                    error: "User does not exist",
-                };
+                throw new ResourceNotFound("User does not exist");
 
             const checkValid = await bcrypt.compare(
                 password,
                 existingUser.password
             );
             if (!checkValid)
-                return {
-                    statusCode: 401,
-                    token: "",
-                    error: "Invalid credentials",
-                };
+                throw new AuthenticationError("Invalid credentials");
 
             return {
                 statusCode: 200,
-                error: "",
-                token: "TokenGoesHere",
+                token: generateToken({
+                    id: existingUser.id,
+                }),
             };
         } catch (error) {
             console.log(error);
@@ -63,20 +59,20 @@ export class UserRepo implements IUserRepo {
     ): Promise<AuthResponse> {
         try {
             const existingUser = await this.findByEmail(email);
-            if (existingUser)
-                return {
-                    statusCode: 400,
-                    error: "User already exists",
-                    token: "",
-                };
+            if (existingUser) throw new UserInputError("User already exist");
 
             const hashedPassword = await bcrypt.hash(password, 10);
-            await this.initializeObj(name, email, hashedPassword);
+            const newUser = await this.initializeObj(
+                name,
+                email,
+                hashedPassword
+            );
 
             return {
                 statusCode: 200,
-                error: "",
-                token: "TokenGoesHere",
+                token: generateToken({
+                    id: newUser.id,
+                }),
             };
         } catch (error) {
             console.log(error.message);

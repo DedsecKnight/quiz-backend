@@ -27,6 +27,8 @@ export class Quiz extends BaseEntity {
 
     @Column()
     authorId: number;
+
+    @Field(() => User)
     @ManyToOne(() => User, (user: User) => user.quizzes)
     @JoinColumn({ name: "authorId" })
     author: User;

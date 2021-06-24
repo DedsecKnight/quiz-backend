@@ -6,11 +6,8 @@ export class AuthResponse {
     @Field(() => Int)
     statusCode: number;
 
-    @Field({ nullable: true })
+    @Field()
     token: string;
-
-    @Field({ nullable: true })
-    error: string;
 }
 
 export interface IUserRepo {

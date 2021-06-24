@@ -9,6 +9,7 @@ import getDecorators from "inversify-inject-decorators";
 import { container } from "../../inversify.config";
 import { IDifficultyRepo } from "../../interfaces/IDifficultyRepo";
 import { ICategoryRepo } from "../../interfaces/ICategoryRepo";
+import { ResourceNotFound } from "../../errors/ResourceNotFound";
 const { lazyInject } = getDecorators(container);
 
 @Resolver(Quiz)
@@ -27,7 +28,7 @@ export class QuizResolver {
             const newQuiz = this._quizRepo.createQuiz(quizArg);
             return newQuiz;
         } catch (error) {
-            console.log(error.message);
+            console.log(error);
         }
     }
 
@@ -57,7 +58,7 @@ export class QuizResolver {
     async quizById(@Arg("id") id: number): Promise<Quiz | null> {
         try {
             const quiz = await this._quizRepo.findById(id);
-            if (!quiz) throw new Error("Quiz does not exists");
+            if (!quiz) throw new ResourceNotFound("Quiz does not exists");
             return quiz;
         } catch (error) {
             if (error.message.indexOf("Quiz does not exists") !== -1)
