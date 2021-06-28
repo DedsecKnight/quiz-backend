@@ -67,6 +67,19 @@ export class QuizResolver {
         }
     }
 
+    @Query(() => Quiz)
+    async quizByName(@Arg("name") name: string): Promise<Quiz> {
+        try {
+            const quiz = await this._quizRepo.findByName(name);
+            if (!quiz) throw new ResourceNotFound("Quiz does not exist");
+            return quiz;
+        } catch (error) {
+            if (error.message.indexOf("Quiz does not exists") !== -1)
+                throw error;
+            else console.log(error);
+        }
+    }
+
     @Query(() => [Quiz])
     async quizzes(): Promise<Quiz[]> {
         try {

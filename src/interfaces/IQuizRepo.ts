@@ -29,4 +29,5 @@ export interface IQuizRepo {
     ) => Promise<Quiz>;
     findById: (id: number) => Promise<Quiz>;
     findByAuthor: (authorId: number) => Promise<Quiz[]>;
+    findByName: (name: string) => Promise<Quiz>;
 }

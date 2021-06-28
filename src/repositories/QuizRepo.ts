@@ -1,4 +1,5 @@
 import { inject, injectable } from "inversify";
+import { createQueryBuilder } from "typeorm";
 import { Quiz } from "../entity/Quiz";
 import { IAnswerRepo } from "../interfaces/IAnswerRepo";
 import { ICategoryRepo } from "../interfaces/ICategoryRepo";
@@ -106,5 +107,14 @@ export class QuizRepo implements IQuizRepo {
             ],
             where: { authorId },
         });
+    }
+
+    async findByName(name: string): Promise<Quiz> {
+        return Quiz.createQueryBuilder("quiz")
+            .where("LOWER(quiz.quizName) = LOWER(:name)", { name })
+            .innerJoinAndSelect("quiz.difficulty", "difficulty")
+            .innerJoinAndSelect("quiz.category", "category")
+            .innerJoinAndSelect("quiz.author", "user")
+            .getOne();
     }
 }
