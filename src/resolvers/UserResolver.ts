@@ -3,7 +3,6 @@ import {
     Query,
     Mutation,
     Arg,
-    InputType,
     Ctx,
     UseMiddleware,
 } from "type-graphql";
@@ -19,10 +18,13 @@ import { container } from "../inversify.config";
 import { checkAuthorization } from "../middlewares/auth";
 import { TContext } from "../types/TContext";
 const { lazyInject } = getDecorators(container);
+import * as bcrypt from "bcrypt";
 
-import { UserInputError } from "apollo-server-errors";
+import { AuthenticationError, UserInputError } from "apollo-server-errors";
 import { Quiz } from "../entity/Quiz";
 import { IQuizRepo } from "../interfaces/IQuizRepo";
+import { ResourceNotFound } from "../errors/ResourceNotFound";
+import { generateToken } from "../jwt/jwt";
 
 @injectable()
 @Resolver(User)
@@ -41,7 +43,27 @@ export class UserResolver {
         @Arg("email") email: string,
         @Arg("password") password: string
     ): Promise<AuthResponse> {
-        return this._userRepo.loginUser(email, password);
+        const existingUser = await this._userRepo.findByEmail(email);
+        if (!existingUser) throw new ResourceNotFound("User does not exist");
+
+        try {
+            const checkValid = await bcrypt.compare(
+                password,
+                existingUser.password
+            );
+
+            if (!checkValid)
+                throw new AuthenticationError("Invalid credentials");
+
+            return {
+                statusCode: 200,
+                token: generateToken({
+                    id: existingUser.id,
+                }),
+            };
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     @Query(() => User)
@@ -64,7 +86,26 @@ export class UserResolver {
         @Arg("email") email: string,
         @Arg("password") password: string
     ): Promise<AuthResponse> {
-        return this._userRepo.registerUser(name, email, password);
+        const existingUser = await this._userRepo.findByEmail(email);
+        if (existingUser) throw new UserInputError("User already exist");
+
+        try {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const newUser = await this._userRepo.initializeObj(
+                name,
+                email,
+                hashedPassword
+            );
+
+            return {
+                statusCode: 200,
+                token: generateToken({
+                    id: newUser.id,
+                }),
+            };
+        } catch (error) {
+            console.log(error.message);
+        }
     }
 
     @Query(() => [Quiz])

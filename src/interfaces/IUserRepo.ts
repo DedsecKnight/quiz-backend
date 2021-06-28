@@ -14,12 +14,6 @@ export interface IUserRepo {
     findById: (id: number) => Promise<User>;
     findByEmail: (email: string) => Promise<User>;
     getAll: () => Promise<User[]>;
-    loginUser: (email: string, password: string) => Promise<AuthResponse>;
-    registerUser: (
-        name: string,
-        email: string,
-        password: string
-    ) => Promise<AuthResponse>;
     initializeObj: (
         name: string,
         email: string,
