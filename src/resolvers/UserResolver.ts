@@ -113,4 +113,27 @@ export class UserResolver {
     async myQuizzes(@Ctx() context: TContext): Promise<Quiz[]> {
         return this._quizRepo.findByAuthor(context.user.id);
     }
+
+    @Mutation(() => User)
+    @UseMiddleware(checkAuthorization)
+    async updateProfile(
+        @Ctx() context: TContext,
+        @Arg("name") name: string,
+        @Arg("email") email: string,
+        @Arg("password") password: string
+    ): Promise<User> {
+        try {
+            const user = await this._userRepo.findById(context.user.id);
+
+            user.email = email;
+            user.password = await bcrypt.hash(password, 10);
+            user.name = name;
+
+            // May need to change this to abide by SOLID rule
+            await user.save();
+            return user;
+        } catch (error) {
+            console.log(error);
+        }
+    }
 }
