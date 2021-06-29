@@ -30,4 +30,5 @@ export interface IQuizRepo {
     findById: (id: number) => Promise<Quiz>;
     findByAuthor: (authorId: number) => Promise<Quiz[]>;
     findByName: (name: string) => Promise<Quiz>;
+    findWithOffsetAndLimit: (offset: number, limit: number) => Promise<Quiz[]>;
 }

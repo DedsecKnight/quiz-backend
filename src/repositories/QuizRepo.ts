@@ -117,4 +117,17 @@ export class QuizRepo implements IQuizRepo {
             .innerJoinAndSelect("quiz.author", "user")
             .getOne();
     }
+
+    async findWithOffsetAndLimit(
+        offset: number,
+        limit: number
+    ): Promise<Quiz[]> {
+        return Quiz.createQueryBuilder("quiz")
+            .innerJoinAndSelect("quiz.difficulty", "difficulty")
+            .innerJoinAndSelect("quiz.category", "category")
+            .innerJoinAndSelect("quiz.author", "user")
+            .skip(offset)
+            .take(limit)
+            .getMany();
+    }
 }
