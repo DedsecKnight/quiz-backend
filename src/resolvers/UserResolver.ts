@@ -9,7 +9,7 @@ import {
 import { User } from "../entity/User";
 import { injectable } from "inversify";
 import { TYPES } from "../types/types";
-import { IUserRepo, AuthResponse } from "../interfaces/IUserRepo";
+import { IUserRepo, AuthResponse, UserScore } from "../interfaces/IUserRepo";
 import { Submission } from "../entity/Submission";
 import { ISubmissionRepo } from "../interfaces/ISubmissionRepo";
 
@@ -80,6 +80,18 @@ export class UserResolver {
         return this._submissionRepo.getUserSubmissions(context.user.id);
     }
 
+    @Query(() => [Submission])
+    @UseMiddleware(checkAuthorization)
+    async myRecentSubmissionsLimit(
+        @Ctx() context: TContext,
+        @Arg("limit") limit: number
+    ): Promise<Submission[]> {
+        return this._submissionRepo.getUserRecentSubmissions(
+            context.user.id,
+            limit
+        );
+    }
+
     @Mutation(() => AuthResponse)
     async registerUser(
         @Arg("name") name: string,
@@ -132,6 +144,17 @@ export class UserResolver {
             // May need to change this to abide by SOLID rule
             await user.save();
             return user;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    @Query(() => UserScore)
+    @UseMiddleware(checkAuthorization)
+    async myScore(@Ctx() context: TContext): Promise<UserScore> {
+        try {
+            const data = await this._userRepo.getScore(context.user.id);
+            return data[0];
         } catch (error) {
             console.log(error);
         }
