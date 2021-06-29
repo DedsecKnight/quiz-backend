@@ -91,9 +91,25 @@ export class QuizResolver {
     }
 
     @Query(() => [Quiz])
-    async quizzesByUser(@Arg("userId") id: number): Promise<Quiz[]> {
+    async quizzesByAuthor(@Arg("userId") id: number): Promise<Quiz[]> {
         try {
             const quizzes = await this._quizRepo.findByAuthor(id);
+            return quizzes;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    @Query(() => [Quiz])
+    async quizzesLimit(
+        @Arg("offset") offset: number,
+        @Arg("limit") limit: number
+    ): Promise<Quiz[]> {
+        try {
+            const quizzes = await this._quizRepo.findWithOffsetAndLimit(
+                offset,
+                limit
+            );
             return quizzes;
         } catch (error) {
             console.log(error);
