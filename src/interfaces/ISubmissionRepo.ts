@@ -11,4 +11,13 @@ export interface ISubmissionRepo {
     createSubmission: (arg: SubmissionArg) => Promise<Submission>;
     findById: (id: number) => Promise<Submission>;
     getScore: (submissionId: number) => Promise<number>;
+    getUserSubmissionsWithOffsetAndLimit: (
+        userId: number,
+        offset: number,
+        limit: number
+    ) => Promise<Submission[]>;
+    getUserRecentSubmissions: (
+        userId: number,
+        limit: number
+    ) => Promise<Submission[]>;
 }

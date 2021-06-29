@@ -62,4 +62,32 @@ export class SubmissionRepo implements ISubmissionRepo {
             relations: ["answers", "quiz", "quiz.difficulty"],
         });
     }
+    getUserSubmissionsWithOffsetAndLimit(
+        userId: number,
+        offset: number,
+        limit: number
+    ): Promise<Submission[]> {
+        return Submission.createQueryBuilder("submission")
+            .innerJoinAndSelect("submission.answers", "answer")
+            .innerJoinAndSelect("submission.quiz", "quiz")
+            .innerJoinAndSelect("quiz.difficulty", "difficulty")
+            .skip(offset)
+            .take(limit)
+            .where("submission.userId = :userId", { userId })
+            .getMany();
+    }
+
+    getUserRecentSubmissions(
+        userId: number,
+        limit: number
+    ): Promise<Submission[]> {
+        return Submission.createQueryBuilder("submission")
+            .where("submission.userId = :userId", { userId })
+            .innerJoinAndSelect("submission.answers", "answer")
+            .innerJoinAndSelect("submission.quiz", "quiz")
+            .innerJoinAndSelect("quiz.difficulty", "difficulty")
+            .orderBy("submission.id", "DESC")
+            .take(limit)
+            .getMany();
+    }
 }
