@@ -24,7 +24,8 @@ import { AuthenticationError, UserInputError } from "apollo-server-errors";
 import { Quiz } from "../entity/Quiz";
 import { IQuizRepo } from "../interfaces/IQuizRepo";
 import { ResourceNotFound } from "../errors/ResourceNotFound";
-import { generateToken } from "../jwt/jwt";
+import { generateRefreshToken, generateToken } from "../jwt/jwt";
+import { CountData } from "../interfaces/ICountData";
 
 @injectable()
 @Resolver(User)
@@ -58,6 +59,9 @@ export class UserResolver {
             return {
                 statusCode: 200,
                 token: generateToken({
+                    id: existingUser.id,
+                }),
+                refreshToken: generateRefreshToken({
                     id: existingUser.id,
                 }),
             };
@@ -114,6 +118,9 @@ export class UserResolver {
                 token: generateToken({
                     id: newUser.id,
                 }),
+                refreshToken: generateRefreshToken({
+                    id: newUser.id,
+                }),
             };
         } catch (error) {
             console.log(error.message);
@@ -155,6 +162,30 @@ export class UserResolver {
         try {
             const data = await this._userRepo.getScore(context.user.id);
             return data[0];
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    @Query(() => CountData)
+    @UseMiddleware(checkAuthorization)
+    async countMySubmissions(@Ctx() context: TContext): Promise<CountData> {
+        try {
+            const data = await this._submissionRepo.getUserSubmissionsCount(
+                context.user.id
+            );
+            return data;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    @Query(() => CountData)
+    @UseMiddleware(checkAuthorization)
+    async countMyQuizzes(@Ctx() context: TContext): Promise<CountData> {
+        try {
+            const data = await this._quizRepo.getUserQuizCount(context.user.id);
+            return data;
         } catch (error) {
             console.log(error);
         }
