@@ -1,4 +1,5 @@
 import { Quiz } from "../entity/Quiz";
+import { CountData } from "./ICountData";
 
 export interface IAnswerArgs {
     answer: string;
@@ -31,4 +32,6 @@ export interface IQuizRepo {
     findByAuthor: (authorId: number) => Promise<Quiz[]>;
     findByName: (name: string) => Promise<Quiz>;
     findWithOffsetAndLimit: (offset: number, limit: number) => Promise<Quiz[]>;
+    getUserQuizCount: (userId: number) => Promise<CountData>;
+    getAllQuizCount: () => Promise<CountData>;
 }

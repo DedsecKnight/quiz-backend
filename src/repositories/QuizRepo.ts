@@ -3,6 +3,7 @@ import { createQueryBuilder } from "typeorm";
 import { Quiz } from "../entity/Quiz";
 import { IAnswerRepo } from "../interfaces/IAnswerRepo";
 import { ICategoryRepo } from "../interfaces/ICategoryRepo";
+import { CountData } from "../interfaces/ICountData";
 import { IDifficultyRepo } from "../interfaces/IDifficultyRepo";
 import { IQuestionRepo } from "../interfaces/IQuestionRepo";
 import { IQuizArgs, IQuizRepo } from "../interfaces/IQuizRepo";
@@ -129,5 +130,25 @@ export class QuizRepo implements IQuizRepo {
             .skip(offset)
             .take(limit)
             .getMany();
+    }
+
+    async getUserQuizCount(userId: number): Promise<CountData> {
+        try {
+            const count = await Quiz.createQueryBuilder("quiz")
+                .where("quiz.authorId = :userId", { userId })
+                .getCount();
+            return Promise.resolve({ count });
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
+
+    async getAllQuizCount(): Promise<CountData> {
+        try {
+            const count = await Quiz.createQueryBuilder("quiz").getCount();
+            return Promise.resolve({ count });
+        } catch (error) {
+            return Promise.reject(error);
+        }
     }
 }
