@@ -1,4 +1,6 @@
+import { Field, Int, ObjectType } from "type-graphql";
 import { Submission } from "../entity/Submission";
+import { CountData } from "./ICountData";
 
 export interface SubmissionArg {
     userId: number;
@@ -20,4 +22,5 @@ export interface ISubmissionRepo {
         userId: number,
         limit: number
     ) => Promise<Submission[]>;
+    getUserSubmissionsCount: (userId: number) => Promise<CountData>;
 }

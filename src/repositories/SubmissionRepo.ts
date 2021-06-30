@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
 import { Answer } from "../entity/Answer";
 import { Submission } from "../entity/Submission";
+import { CountData } from "../interfaces/ICountData";
 import { ISubmissionRepo, SubmissionArg } from "../interfaces/ISubmissionRepo";
 
 @injectable()
@@ -89,5 +90,16 @@ export class SubmissionRepo implements ISubmissionRepo {
             .orderBy("submission.id", "DESC")
             .take(limit)
             .getMany();
+    }
+
+    async getUserSubmissionsCount(userId: number): Promise<CountData> {
+        try {
+            const count = await Submission.createQueryBuilder("submission")
+                .where("submission.userId = :userId", { userId })
+                .getCount();
+            return Promise.resolve({ count });
+        } catch (error) {
+            return Promise.reject(error);
+        }
     }
 }
