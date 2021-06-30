@@ -10,6 +10,7 @@ import { container } from "../../inversify.config";
 import { IDifficultyRepo } from "../../interfaces/IDifficultyRepo";
 import { ICategoryRepo } from "../../interfaces/ICategoryRepo";
 import { ResourceNotFound } from "../../errors/ResourceNotFound";
+import { CountData } from "../../interfaces/ICountData";
 const { lazyInject } = getDecorators(container);
 
 @Resolver(Quiz)
@@ -111,6 +112,16 @@ export class QuizResolver {
                 limit
             );
             return quizzes;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    @Query(() => CountData)
+    async countAllQuizzes(): Promise<CountData> {
+        try {
+            const data = await this._quizRepo.getAllQuizCount();
+            return data;
         } catch (error) {
             console.log(error);
         }
