@@ -1,6 +1,6 @@
 import { AuthenticationError } from "apollo-server";
 import { MiddlewareFn } from "type-graphql";
-import { decodeToken } from "../jwt/jwt";
+import { decodeRefreshToken, decodeToken } from "../jwt/jwt";
 import { TContext } from "../types/TContext";
 
 export const checkAuthorization: MiddlewareFn<TContext> = async (
@@ -14,6 +14,8 @@ export const checkAuthorization: MiddlewareFn<TContext> = async (
         context.user = decodeToken(context.headers.authorization.substring(7));
         return next();
     } catch (error) {
-        throw error;
+        if (!context.headers.refreshtoken) throw error;
+        context.user = decodeRefreshToken(context.headers.refreshtoken);
+        return next();
     }
 };

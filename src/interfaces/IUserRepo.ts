@@ -8,6 +8,9 @@ export class AuthResponse {
 
     @Field()
     token: string;
+
+    @Field()
+    refreshToken: string;
 }
 
 @ObjectType()
