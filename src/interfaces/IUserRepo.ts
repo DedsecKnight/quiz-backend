@@ -23,13 +23,23 @@ export class UserScore {
 }
 
 export interface IUserRepo {
+    // Find a user with a given id
     findById: (id: number) => Promise<User>;
+
+    // Find a user with given email
     findByEmail: (email: string) => Promise<User>;
+
+    // Get all users
     getAll: () => Promise<User[]>;
+
+    // Initialize a new User object
     initializeObj: (
         name: string,
         email: string,
         password: string
     ) => Promise<User>;
+
+    // Get total and max score among all submissions of a user
+    // id: id of target user
     getScore: (id: number) => Promise<UserScore[]>;
 }

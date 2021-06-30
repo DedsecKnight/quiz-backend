@@ -20,18 +20,37 @@ export interface IQuizArgs {
 }
 
 export interface IQuizRepo {
+    // Create a new Quiz
     createQuiz: (quizArg: IQuizArgs) => Promise<Quiz>;
+
+    // Get all quizzes
     findAll: () => Promise<Quiz[]>;
+
+    // Initialize a new Quiz object
     initializeObj: (
         quizName: string,
         authorId: number,
         difficultyId: number,
         categoryId: number
     ) => Promise<Quiz>;
+
+    // Find a quiz with given ID
     findById: (id: number) => Promise<Quiz>;
+
+    // Find all quizzes that is written by given User
     findByAuthor: (authorId: number) => Promise<Quiz[]>;
+
+    // Find a quiz with a given name
     findByName: (name: string) => Promise<Quiz>;
+
+    // Find quizzes (pagination)
+    // offset: number of submissions to skip
+    // limit: number of submissions to get
     findWithOffsetAndLimit: (offset: number, limit: number) => Promise<Quiz[]>;
+
+    // Get count of number of quizzes written by a given user
     getUserQuizCount: (userId: number) => Promise<CountData>;
+
+    // Get count of all quizzes
     getAllQuizCount: () => Promise<CountData>;
 }
