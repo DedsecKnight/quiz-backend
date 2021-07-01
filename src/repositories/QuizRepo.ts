@@ -1,5 +1,4 @@
 import { inject, injectable } from "inversify";
-import { createQueryBuilder } from "typeorm";
 import { Quiz } from "../entity/Quiz";
 import { IAnswerRepo } from "../interfaces/IAnswerRepo";
 import { ICategoryRepo } from "../interfaces/ICategoryRepo";

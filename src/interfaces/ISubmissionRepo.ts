@@ -1,4 +1,3 @@
-import { Field, Int, ObjectType } from "type-graphql";
 import { Submission } from "../entity/Submission";
 import { CountData } from "./ICountData";
 
