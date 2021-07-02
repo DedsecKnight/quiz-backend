@@ -26,6 +26,10 @@ import { IQuizRepo } from "../interfaces/IQuizRepo";
 import { ResourceNotFound } from "../errors/ResourceNotFound";
 import { generateRefreshToken, generateToken } from "../jwt/jwt";
 import { CountData } from "../interfaces/ICountData";
+import {
+    validateLoginInput,
+    validateRegisterInput,
+} from "../middlewares/validateAuthData";
 
 @injectable()
 @Resolver(User)
@@ -40,41 +44,44 @@ export class UserResolver {
     }
 
     @Mutation(() => AuthResponse)
+    @UseMiddleware(validateLoginInput)
     async login(
         @Arg("email") email: string,
         @Arg("password") password: string
     ): Promise<AuthResponse> {
-        const existingUser = await this._userRepo.findByEmail(email);
-        if (!existingUser) throw new ResourceNotFound("User does not exist");
+        let existingUser: User;
 
         try {
-            const checkValid = await bcrypt.compare(
-                password,
-                existingUser.password
-            );
-
-            if (!checkValid)
-                throw new AuthenticationError("Invalid credentials");
-
-            return {
-                statusCode: 200,
-                token: generateToken({
-                    id: existingUser.id,
-                }),
-                refreshToken: generateRefreshToken({
-                    id: existingUser.id,
-                }),
-            };
+            existingUser = await this._userRepo.findByEmail(email);
         } catch (error) {
             console.log(error);
+            throw new Error("Database Error: Cannot access User repository");
         }
+
+        if (!existingUser) throw new AuthenticationError("User does not exist");
+        const checkValid = await bcrypt.compare(
+            password,
+            existingUser.password
+        );
+
+        if (!checkValid) throw new AuthenticationError("Invalid credentials");
+
+        return {
+            statusCode: 200,
+            token: generateToken({
+                id: existingUser.id,
+            }),
+            refreshToken: generateRefreshToken({
+                id: existingUser.id,
+            }),
+        };
     }
 
     @Query(() => User)
     @UseMiddleware(checkAuthorization)
     async myInfo(@Ctx() context: TContext): Promise<User> {
         const user = await this._userRepo.findById(context.user.id);
-        if (!user) throw new UserInputError("User Not Found");
+        if (!user) throw new AuthenticationError("User Not Found");
         return user;
     }
 
@@ -90,47 +97,82 @@ export class UserResolver {
         @Ctx() context: TContext,
         @Arg("limit") limit: number
     ): Promise<Submission[]> {
-        return this._submissionRepo.getUserRecentSubmissions(
-            context.user.id,
-            limit
-        );
+        try {
+            const submissions =
+                await this._submissionRepo.getUserRecentSubmissions(
+                    context.user.id,
+                    limit
+                );
+            return submissions;
+        } catch (error) {
+            console.log(error);
+            throw new Error(
+                "Database Error: Cannot access Submission repository"
+            );
+        }
     }
 
     @Mutation(() => AuthResponse)
+    @UseMiddleware(validateRegisterInput)
     async registerUser(
         @Arg("name") name: string,
         @Arg("email") email: string,
         @Arg("password") password: string
     ): Promise<AuthResponse> {
-        const existingUser = await this._userRepo.findByEmail(email);
-        if (existingUser) throw new UserInputError("User already exist");
+        let existingUser: User;
 
         try {
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const newUser = await this._userRepo.initializeObj(
+            existingUser = await this._userRepo.findByEmail(email);
+        } catch (error) {
+            console.log(error);
+            throw new Error("Database error: Cannot access User repository");
+        }
+
+        if (existingUser) throw new UserInputError("User already exist");
+
+        let hashedPassword: string;
+
+        try {
+            hashedPassword = await bcrypt.hash(password, 10);
+        } catch (error) {
+            console.log(error);
+            throw new Error("Database Error: Authentication error");
+        }
+
+        let newUser: User;
+
+        try {
+            newUser = await this._userRepo.initializeObj(
                 name,
                 email,
                 hashedPassword
             );
-
-            return {
-                statusCode: 200,
-                token: generateToken({
-                    id: newUser.id,
-                }),
-                refreshToken: generateRefreshToken({
-                    id: newUser.id,
-                }),
-            };
         } catch (error) {
-            console.log(error.message);
+            console.log(error);
+            throw new Error("Database Error: Cannot create new User");
         }
+
+        return {
+            statusCode: 200,
+            token: generateToken({
+                id: newUser.id,
+            }),
+            refreshToken: generateRefreshToken({
+                id: newUser.id,
+            }),
+        };
     }
 
     @Query(() => [Quiz])
     @UseMiddleware(checkAuthorization)
     async myQuizzes(@Ctx() context: TContext): Promise<Quiz[]> {
-        return this._quizRepo.findByAuthor(context.user.id);
+        try {
+            const quizzes = this._quizRepo.findByAuthor(context.user.id);
+            return quizzes;
+        } catch (error) {
+            console.log(error);
+            throw new Error("Database Error: Cannot access Quiz repository");
+        }
     }
 
     @Mutation(() => User)
@@ -153,6 +195,7 @@ export class UserResolver {
             return user;
         } catch (error) {
             console.log(error);
+            throw new Error("Database Error: Cannot access User repository");
         }
     }
 
@@ -164,6 +207,7 @@ export class UserResolver {
             return data[0];
         } catch (error) {
             console.log(error);
+            throw new Error("Database Error: Cannot access User repository");
         }
     }
 
@@ -177,6 +221,9 @@ export class UserResolver {
             return data;
         } catch (error) {
             console.log(error);
+            throw new Error(
+                "Database Error: Cannot access Submission repository"
+            );
         }
     }
 
@@ -188,6 +235,7 @@ export class UserResolver {
             return data;
         } catch (error) {
             console.log(error);
+            throw new Error("Database Error: Cannot access Quiz repository");
         }
     }
 }

@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { Arg, Mutation, Resolver, Query } from "type-graphql";
+import { Arg, Mutation, Resolver, Query, UseMiddleware } from "type-graphql";
 import { Quiz } from "../../entity/Quiz";
 import { IQuizRepo } from "../../interfaces/IQuizRepo";
 import { TYPES } from "../../types/types";
@@ -11,6 +11,7 @@ import { IDifficultyRepo } from "../../interfaces/IDifficultyRepo";
 import { ICategoryRepo } from "../../interfaces/ICategoryRepo";
 import { ResourceNotFound } from "../../errors/ResourceNotFound";
 import { CountData } from "../../interfaces/ICountData";
+import { validateCreateQuizData } from "../../middlewares/validateQuizData";
 const { lazyInject } = getDecorators(container);
 
 @Resolver(Quiz)
@@ -21,6 +22,7 @@ export class QuizResolver {
     @lazyInject(TYPES.ICategoryRepo) private _categoryRepo: ICategoryRepo;
 
     @Mutation(() => Quiz)
+    @UseMiddleware(validateCreateQuizData)
     async createQuiz(
         @Arg("quiz")
         quizArg: QuizArgs
@@ -30,6 +32,7 @@ export class QuizResolver {
             return newQuiz;
         } catch (error) {
             console.log(error);
+            throw new Error("Database Error: Cannot create Quiz");
         }
     }
 
@@ -42,6 +45,7 @@ export class QuizResolver {
             return quizzes;
         } catch (error) {
             console.log(error);
+            throw new Error("Database Error: Cannot access Quiz repository");
         }
     }
 
@@ -52,6 +56,7 @@ export class QuizResolver {
             return quizzes;
         } catch (error) {
             console.log(error);
+            throw new Error("Database Error: Cannot access Quiz repository");
         }
     }
 
@@ -64,7 +69,12 @@ export class QuizResolver {
         } catch (error) {
             if (error.message.indexOf("Quiz does not exists") !== -1)
                 throw error;
-            else console.log(error);
+            else {
+                console.log(error);
+                throw new Error(
+                    "Database Error: Cannot access Quiz repository"
+                );
+            }
         }
     }
 
@@ -77,7 +87,12 @@ export class QuizResolver {
         } catch (error) {
             if (error.message.indexOf("Quiz does not exists") !== -1)
                 throw error;
-            else console.log(error);
+            else {
+                console.log(error);
+                throw new Error(
+                    "Database Error: Cannot access Quiz repository"
+                );
+            }
         }
     }
 
@@ -88,6 +103,7 @@ export class QuizResolver {
             return quizzes;
         } catch (error) {
             console.log(error);
+            throw new Error("Database Error: Cannot access Quiz repository");
         }
     }
 
@@ -98,6 +114,7 @@ export class QuizResolver {
             return quizzes;
         } catch (error) {
             console.log(error);
+            throw new Error("Database Error: Cannot access Quiz repository");
         }
     }
 
@@ -114,6 +131,7 @@ export class QuizResolver {
             return quizzes;
         } catch (error) {
             console.log(error);
+            throw new Error("Database Error: Cannot access Quiz repository");
         }
     }
 
@@ -124,6 +142,7 @@ export class QuizResolver {
             return data;
         } catch (error) {
             console.log(error);
+            throw new Error("Database Error: Cannot access Quiz repository");
         }
     }
 }
