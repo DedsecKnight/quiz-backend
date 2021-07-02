@@ -176,7 +176,7 @@ export class UserResolver {
     }
 
     @Mutation(() => User)
-    @UseMiddleware(checkAuthorization)
+    @UseMiddleware(checkAuthorization, validateRegisterInput)
     async updateProfile(
         @Ctx() context: TContext,
         @Arg("name") name: string,
