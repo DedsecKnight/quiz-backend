@@ -48,27 +48,15 @@ export class SubmissionResolver {
             return newSubmission;
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot create Submission");
         }
     }
 
     @Query(() => Submission)
     async submissionById(@Arg("id") id: number): Promise<Submission> {
-        try {
-            const submission = await this._submissionRepo.findById(id);
-            if (!submission)
-                throw new ResourceNotFound("Submission does not exist");
-            return submission;
-        } catch (error) {
-            if (error.message.indexOf("Submission does not exist") !== -1)
-                throw error;
-            else {
-                console.log(error);
-                throw new Error(
-                    "Database Error: Cannot access Submission repository"
-                );
-            }
-        }
+        const submission = await this._submissionRepo.findById(id);
+        if (!submission)
+            throw new ResourceNotFound("Submission does not exist");
+        return submission;
     }
 
     @FieldResolver(() => Int)
@@ -77,9 +65,6 @@ export class SubmissionResolver {
             return this._submissionRepo.getScore(submission.id);
         } catch (error) {
             console.log(error);
-            throw new Error(
-                "Database Error: Cannot access Submission repository"
-            );
         }
     }
 }
