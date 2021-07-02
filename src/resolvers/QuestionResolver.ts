@@ -19,6 +19,9 @@ export class QuestionResolver {
             return questions;
         } catch (error) {
             console.log(error);
+            throw new Error(
+                "Database Error: Cannot access Questions repository"
+            );
         }
     }
 }
