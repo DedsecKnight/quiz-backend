@@ -23,12 +23,11 @@ import * as bcrypt from "bcrypt";
 import { AuthenticationError, UserInputError } from "apollo-server-errors";
 import { Quiz } from "../entity/Quiz";
 import { IQuizRepo } from "../interfaces/IQuizRepo";
-import { ResourceNotFound } from "../errors/ResourceNotFound";
 import { generateRefreshToken, generateToken } from "../jwt/jwt";
 import { CountData } from "../interfaces/ICountData";
 import {
     validateLoginInput,
-    validateRegisterInput,
+    validateCredentialsInput,
 } from "../middlewares/validateAuthData";
 
 @injectable()
@@ -40,7 +39,13 @@ export class UserResolver {
 
     @Query(() => [User])
     async users(): Promise<User[]> {
-        return this._userRepo.getAll();
+        try {
+            const users = await this._userRepo.getAll();
+            return users;
+        } catch (error) {
+            console.log(error);
+            throw new Error("Database Error");
+        }
     }
 
     @Mutation(() => AuthResponse)
@@ -55,7 +60,7 @@ export class UserResolver {
             existingUser = await this._userRepo.findByEmail(email);
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot access User repository");
+            throw new Error("Database Error");
         }
 
         if (!existingUser) throw new AuthenticationError("User does not exist");
@@ -80,7 +85,13 @@ export class UserResolver {
     @Query(() => User)
     @UseMiddleware(checkAuthorization)
     async myInfo(@Ctx() context: TContext): Promise<User> {
-        const user = await this._userRepo.findById(context.user.id);
+        let user: User;
+        try {
+            user = await this._userRepo.findById(context.user.id);
+        } catch (error) {
+            console.log(error);
+            throw new Error("Database Error");
+        }
         if (!user) throw new AuthenticationError("User Not Found");
         return user;
     }
@@ -88,7 +99,15 @@ export class UserResolver {
     @Query(() => [Submission])
     @UseMiddleware(checkAuthorization)
     async mySubmissions(@Ctx() context: TContext): Promise<Submission[]> {
-        return this._submissionRepo.getUserSubmissions(context.user.id);
+        try {
+            const submissions = await this._submissionRepo.getUserSubmissions(
+                context.user.id
+            );
+            return submissions;
+        } catch (error) {
+            console.log(error);
+            throw new Error("Database Error");
+        }
     }
 
     @Query(() => [Submission])
@@ -106,14 +125,12 @@ export class UserResolver {
             return submissions;
         } catch (error) {
             console.log(error);
-            throw new Error(
-                "Database Error: Cannot access Submission repository"
-            );
+            throw new Error("Database Error");
         }
     }
 
     @Mutation(() => AuthResponse)
-    @UseMiddleware(validateRegisterInput)
+    @UseMiddleware(validateCredentialsInput)
     async registerUser(
         @Arg("name") name: string,
         @Arg("email") email: string,
@@ -125,10 +142,15 @@ export class UserResolver {
             existingUser = await this._userRepo.findByEmail(email);
         } catch (error) {
             console.log(error);
-            throw new Error("Database error: Cannot access User repository");
+            throw new Error("Database error");
         }
 
-        if (existingUser) throw new UserInputError("User already exist");
+        if (existingUser)
+            throw new UserInputError("Create user failed", {
+                validationErrors: {
+                    message: "User already exist",
+                },
+            });
 
         let hashedPassword: string;
 
@@ -136,7 +158,7 @@ export class UserResolver {
             hashedPassword = await bcrypt.hash(password, 10);
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Authentication error");
+            throw new Error("Database Error");
         }
 
         let newUser: User;
@@ -149,7 +171,7 @@ export class UserResolver {
             );
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot create new User");
+            throw new Error("Database Error");
         }
 
         return {
@@ -171,12 +193,12 @@ export class UserResolver {
             return quizzes;
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot access Quiz repository");
+            throw new Error("Database Error");
         }
     }
 
     @Mutation(() => User)
-    @UseMiddleware(checkAuthorization, validateRegisterInput)
+    @UseMiddleware(checkAuthorization, validateCredentialsInput)
     async updateProfile(
         @Ctx() context: TContext,
         @Arg("name") name: string,
@@ -195,7 +217,7 @@ export class UserResolver {
             return user;
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot access User repository");
+            throw new Error("Database Error");
         }
     }
 
@@ -207,7 +229,7 @@ export class UserResolver {
             return data[0];
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot access User repository");
+            throw new Error("Database Error");
         }
     }
 
@@ -221,9 +243,7 @@ export class UserResolver {
             return data;
         } catch (error) {
             console.log(error);
-            throw new Error(
-                "Database Error: Cannot access Submission repository"
-            );
+            throw new Error("Database Error");
         }
     }
 
@@ -235,7 +255,7 @@ export class UserResolver {
             return data;
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot access Quiz repository");
+            throw new Error("Database Error");
         }
     }
 }
