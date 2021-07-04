@@ -1,4 +1,4 @@
-import { AuthenticationError, UserInputError } from "apollo-server";
+import { AuthenticationError } from "apollo-server";
 import { inject, injectable } from "inversify";
 import { Quiz } from "../entity/Quiz";
 import { IAnswerRepo } from "../interfaces/IAnswerRepo";
@@ -40,9 +40,8 @@ export class QuizRepo implements IQuizRepo {
         const authorObj = await this._userRepo.findById(userId);
         if (!authorObj) throw new AuthenticationError("User does not exist");
 
-        // Check if difficulty exists
+        // Get difficulty object
         const diffObj = await this._difficultyRepo.getObjByType(difficulty);
-        if (!diffObj) throw new UserInputError("Invalid difficulty");
 
         // Find or create new Category
         const catObj = await this._categoryRepo.findOrCreate(category);
