@@ -1,5 +1,12 @@
 import { injectable } from "inversify";
-import { Arg, Mutation, Resolver, Query, UseMiddleware } from "type-graphql";
+import {
+    Arg,
+    Mutation,
+    Resolver,
+    Query,
+    UseMiddleware,
+    Ctx,
+} from "type-graphql";
 import { Quiz } from "../../entity/Quiz";
 import { IQuizRepo } from "../../interfaces/IQuizRepo";
 import { TYPES } from "../../types/types";
@@ -13,6 +20,8 @@ import { ResourceNotFound } from "../../errors/ResourceNotFound";
 import { CountData } from "../../interfaces/ICountData";
 import { validateCreateQuizData } from "../../middlewares/validateQuizData";
 import { AuthenticationError } from "apollo-server";
+import { checkAuthorization } from "../../middlewares/auth";
+import { TContext } from "../../types/TContext";
 const { lazyInject } = getDecorators(container);
 
 @Resolver(Quiz)
@@ -23,11 +32,13 @@ export class QuizResolver {
     @lazyInject(TYPES.ICategoryRepo) private _categoryRepo: ICategoryRepo;
 
     @Mutation(() => Quiz)
-    @UseMiddleware(validateCreateQuizData)
+    @UseMiddleware(checkAuthorization, validateCreateQuizData)
     async createQuiz(
+        @Ctx() context: TContext,
         @Arg("quiz")
         quizArg: QuizArgs
     ): Promise<Quiz> {
+        quizArg.userId = context.user.id;
         try {
             const newQuiz = this._quizRepo.createQuiz(quizArg);
             return newQuiz;

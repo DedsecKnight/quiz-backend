@@ -25,7 +25,6 @@ class QuestionArgs implements IQuestionArgs {
 
 @InputType()
 export class QuizArgs implements IQuizArgs {
-    @Field(() => ID)
     userId: number;
 
     @Field()
