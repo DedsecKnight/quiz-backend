@@ -66,11 +66,10 @@ export class QuizResolver {
     async quizById(@Arg("id") id: number): Promise<Quiz | null> {
         try {
             const quiz = await this._quizRepo.findById(id);
-            if (!quiz) throw new ResourceNotFound("Quiz does not exists");
+            if (!quiz) throw new ResourceNotFound("Quiz does not exist");
             return quiz;
         } catch (error) {
-            if (error.message.indexOf("Quiz does not exists") !== -1)
-                throw error;
+            if (error instanceof ResourceNotFound) throw error;
             else {
                 console.log(error);
                 throw new Error("Database Error");
@@ -85,8 +84,7 @@ export class QuizResolver {
             if (!quiz) throw new ResourceNotFound("Quiz does not exist");
             return quiz;
         } catch (error) {
-            if (error.message.indexOf("Quiz does not exists") !== -1)
-                throw error;
+            if (error instanceof ResourceNotFound) throw error;
             else {
                 console.log(error);
                 throw new Error("Database Error");
