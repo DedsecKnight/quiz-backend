@@ -2,23 +2,50 @@ import validator from "validator";
 import { MiddlewareFn } from "type-graphql";
 import { UserInputError } from "apollo-server-errors";
 
+interface CredentialsInputValidationErrorSchema {
+    email?: string;
+    password?: string;
+}
+
 export const validateLoginInput: MiddlewareFn = async ({ args }, next) => {
-    if (!validator.isEmail(args.email))
-        throw new UserInputError("Invalid email");
+    const validationErrors: CredentialsInputValidationErrorSchema = {};
+
+    if (!validator.isEmail(args.email)) {
+        validationErrors.email = "Invalid email format";
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+        throw new UserInputError("Login failed due to validation errors", {
+            validationErrors,
+        });
+    }
+
     return next();
 };
 
-export const validateRegisterInput: MiddlewareFn = async ({ args }, next) => {
-    if (!validator.isEmail(args.email))
-        throw new UserInputError("Invalid email");
+export const validateCredentialsInput: MiddlewareFn = async (
+    { args },
+    next
+) => {
+    const validationErrors: CredentialsInputValidationErrorSchema = {};
+
+    if (!validator.isEmail(args.email)) {
+        validationErrors.email = "Invalid email format";
+    }
     if (
-        !validator.isStrongPassword(args.password, {
-            minLength: 8,
-            minNumbers: 1,
+        !validator.isLength(args.password, {
+            min: 8,
         })
-    )
-        throw new UserInputError(
-            "Password has to have at least 8 characters, 1 of which is a number"
-        );
+    ) {
+        validationErrors.password =
+            "Password has to have at least 8 characters";
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+        throw new UserInputError("Credentials validation failed", {
+            validationErrors,
+        });
+    }
+
     return next();
 };
