@@ -12,6 +12,7 @@ import { ICategoryRepo } from "../../interfaces/ICategoryRepo";
 import { ResourceNotFound } from "../../errors/ResourceNotFound";
 import { CountData } from "../../interfaces/ICountData";
 import { validateCreateQuizData } from "../../middlewares/validateQuizData";
+import { AuthenticationError } from "apollo-server";
 const { lazyInject } = getDecorators(container);
 
 @Resolver(Quiz)
@@ -31,8 +32,9 @@ export class QuizResolver {
             const newQuiz = this._quizRepo.createQuiz(quizArg);
             return newQuiz;
         } catch (error) {
+            if (error instanceof AuthenticationError) throw error;
             console.log(error);
-            throw new Error("Database Error: Cannot create Quiz");
+            throw new Error("Database Error");
         }
     }
 
@@ -45,7 +47,7 @@ export class QuizResolver {
             return quizzes;
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot access Quiz repository");
+            throw new Error("Database Error");
         }
     }
 
@@ -56,7 +58,7 @@ export class QuizResolver {
             return quizzes;
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot access Quiz repository");
+            throw new Error("Database Error");
         }
     }
 
@@ -71,9 +73,7 @@ export class QuizResolver {
                 throw error;
             else {
                 console.log(error);
-                throw new Error(
-                    "Database Error: Cannot access Quiz repository"
-                );
+                throw new Error("Database Error");
             }
         }
     }
@@ -89,9 +89,7 @@ export class QuizResolver {
                 throw error;
             else {
                 console.log(error);
-                throw new Error(
-                    "Database Error: Cannot access Quiz repository"
-                );
+                throw new Error("Database Error");
             }
         }
     }
@@ -103,7 +101,7 @@ export class QuizResolver {
             return quizzes;
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot access Quiz repository");
+            throw new Error("Database Error");
         }
     }
 
@@ -114,7 +112,7 @@ export class QuizResolver {
             return quizzes;
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot access Quiz repository");
+            throw new Error("Database Error");
         }
     }
 
@@ -131,7 +129,7 @@ export class QuizResolver {
             return quizzes;
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot access Quiz repository");
+            throw new Error("Database Error");
         }
     }
 
@@ -142,7 +140,7 @@ export class QuizResolver {
             return data;
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot access Quiz repository");
+            throw new Error("Database Error");
         }
     }
 }

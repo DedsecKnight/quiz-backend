@@ -48,7 +48,7 @@ export class SubmissionResolver {
             return newSubmission;
         } catch (error) {
             console.log(error);
-            throw new Error("Database Error: Cannot create Submission");
+            throw new Error("Database Error");
         }
     }
 
@@ -60,13 +60,10 @@ export class SubmissionResolver {
                 throw new ResourceNotFound("Submission does not exist");
             return submission;
         } catch (error) {
-            if (error.message.indexOf("Submission does not exist") !== -1)
-                throw error;
+            if (error instanceof ResourceNotFound) throw error;
             else {
                 console.log(error);
-                throw new Error(
-                    "Database Error: Cannot access Submission repository"
-                );
+                throw new Error("Database Error");
             }
         }
     }
@@ -77,9 +74,7 @@ export class SubmissionResolver {
             return this._submissionRepo.getScore(submission.id);
         } catch (error) {
             console.log(error);
-            throw new Error(
-                "Database Error: Cannot access Submission repository"
-            );
+            throw new Error("Database Error");
         }
     }
 }
