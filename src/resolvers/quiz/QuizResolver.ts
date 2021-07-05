@@ -206,7 +206,7 @@ export class QuizResolver {
         @Root() quiz: Quiz
     ): Promise<Question[]> {
         try {
-            const questions = await context.questionsLoader.load(quiz.id);
+            const questions = await context.quizQuestionsLoader.load(quiz.id);
             return questions;
         } catch (error) {
             console.log(error);
