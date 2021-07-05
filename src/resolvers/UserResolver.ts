@@ -70,7 +70,6 @@ export class UserResolver {
         if (!checkValid) throw new AuthenticationError("Invalid credentials");
 
         return {
-            statusCode: 200,
             token: generateToken({
                 id: existingUser.id,
             }),
@@ -156,7 +155,6 @@ export class UserResolver {
             });
 
         return {
-            statusCode: 200,
             token: generateToken({
                 id: newUser.id,
             }),

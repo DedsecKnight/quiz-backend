@@ -3,9 +3,6 @@ import { User } from "../entity/User";
 
 @ObjectType()
 export class AuthResponse {
-    @Field(() => Int)
-    statusCode: number;
-
     @Field()
     token: string;
 
