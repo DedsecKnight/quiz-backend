@@ -1,22 +1,21 @@
-import { injectable } from "inversify";
-import { Query, Resolver } from "type-graphql";
+import { Ctx, FieldResolver, Resolver, Root } from "type-graphql";
 import { Question } from "../entity/Question";
 
-import getDecorators from "inversify-inject-decorators";
-import { container } from "../inversify.config";
-import { TYPES } from "../types/types";
-import { IQuestionRepo } from "../interfaces/IQuestionRepo";
-const { lazyInject } = getDecorators(container);
+import { Answer } from "../entity/Answer";
+import { TContext } from "../types/TContext";
 
-@injectable()
-@Resolver()
+@Resolver(Question)
 export class QuestionResolver {
-    @lazyInject(TYPES.IQuestionRepo) private _questionRepo: IQuestionRepo;
-    @Query(() => [Question])
-    async questions(): Promise<Question[]> {
+    @FieldResolver(() => [Answer])
+    async answers(
+        @Ctx() context: TContext,
+        @Root() question: Question
+    ): Promise<Answer[]> {
         try {
-            const questions = await this._questionRepo.findAll();
-            return questions;
+            const answers = await context.questionAnswersLoader.load(
+                question.id
+            );
+            return answers;
         } catch (error) {
             console.log(error);
             throw new Error("Database Error");
