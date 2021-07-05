@@ -8,9 +8,7 @@ export class QuestionRepo implements IQuestionRepo {
         return Question.create({ question, quizId }).save();
     }
     findAll(): Promise<Question[]> {
-        return Question.find({
-            relations: ["answers"],
-        });
+        return Question.find();
     }
     findByQuizId(quizId: number): Promise<Question[]> {
         return Question.find({
