@@ -34,14 +34,7 @@ export class SubmissionRepo implements ISubmissionRepo {
         );
     }
     findById(id: number): Promise<Submission> {
-        return Submission.findOne(
-            {
-                id,
-            },
-            {
-                relations: ["answers", "answers.submissions"],
-            }
-        );
+        return Submission.findOne(id);
     }
     async getScore(submissionId: number): Promise<number> {
         const subObj = await Submission.findOne(
@@ -60,7 +53,6 @@ export class SubmissionRepo implements ISubmissionRepo {
     getUserSubmissions(userId: number): Promise<Submission[]> {
         return Submission.find({
             where: { userId },
-            relations: ["answers", "quiz", "quiz.difficulty"],
         });
     }
     getUserSubmissionsWithOffsetAndLimit(
@@ -69,9 +61,6 @@ export class SubmissionRepo implements ISubmissionRepo {
         limit: number
     ): Promise<Submission[]> {
         return Submission.createQueryBuilder("submission")
-            .innerJoinAndSelect("submission.answers", "answer")
-            .innerJoinAndSelect("submission.quiz", "quiz")
-            .innerJoinAndSelect("quiz.difficulty", "difficulty")
             .skip(offset)
             .take(limit)
             .where("submission.userId = :userId", { userId })
