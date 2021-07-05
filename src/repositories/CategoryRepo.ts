@@ -27,4 +27,20 @@ export class CategoryRepo implements ICategoryRepo {
         if (!catObj) return [];
         return catObj.quizzes;
     }
+
+    async findById(id: number): Promise<Category> {
+        return Category.findOne(id);
+    }
+
+    async findByIds(ids: number[]): Promise<Category[]> {
+        return Category.findByIds(ids);
+    }
+
+    async findByCategoryName(categoryName: string): Promise<Category> {
+        return Category.findOne({
+            where: {
+                categoryName,
+            },
+        });
+    }
 }

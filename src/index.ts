@@ -8,6 +8,11 @@ import { IDifficultyRepo } from "./interfaces/IDifficultyRepo";
 import { TYPES } from "./types/types";
 
 import { ApolloServer } from "apollo-server";
+import { UserLoader } from "./data-loader/UserLoader";
+import { TContext } from "./types/TContext";
+import { DifficultyLoader } from "./data-loader/DifficultyLoader";
+import { CategoryLoader } from "./data-loader/CategoryLoader";
+import { QuestionsLoader } from "./data-loader/QuestionsLoader";
 
 createConnection()
     .then(async () => {
@@ -22,7 +27,14 @@ createConnection()
         const server = new ApolloServer({
             schema,
             playground: true,
-            context: ({ req }) => req,
+            context: ({ req }) =>
+                ({
+                    ...req,
+                    userLoader: UserLoader(),
+                    difficultyLoader: DifficultyLoader(),
+                    categoryLoader: CategoryLoader(),
+                    questionsLoader: QuestionsLoader(),
+                } as TContext),
         });
 
         const { url } = await server.listen(5000);

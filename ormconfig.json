@@ -6,7 +6,7 @@
    "password": "abc12345",
    "database": "quiz-backend",
    "synchronize": false,
-   "logging": false,
+   "logging": true,
    "entities": [
       "src/entity/**/*.ts"
    ],

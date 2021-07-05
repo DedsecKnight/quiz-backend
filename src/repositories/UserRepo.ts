@@ -37,4 +37,8 @@ export class UserRepo implements IUserRepo {
             ) as T2;
         `);
     }
+
+    findByIds(ids: number[]): Promise<User[]> {
+        return User.findByIds(ids);
+    }
 }

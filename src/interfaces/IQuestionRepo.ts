@@ -8,4 +8,7 @@ export interface IQuestionRepo {
 
     // Get all questions in the databasse (regardless of quiz)
     findAll: () => Promise<Question[]>;
+
+    // Get all questions of a quiz
+    findByQuizId: (id: number) => Promise<Question[]>;
 }

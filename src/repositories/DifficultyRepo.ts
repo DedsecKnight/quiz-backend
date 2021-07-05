@@ -33,9 +33,19 @@ export class DifficultyRepo implements IDifficultyRepo {
         return diffObj.quizzes;
     }
 
-    async getObjByType(type: string): Promise<Difficulty> {
+    getObjByType(type: string): Promise<Difficulty> {
         return Difficulty.findOne({
             type,
         });
+    }
+
+    findById(id: number): Promise<Difficulty> {
+        return Difficulty.findOne({
+            id,
+        });
+    }
+
+    findByIds(ids: number[]): Promise<Difficulty[]> {
+        return Difficulty.findByIds(ids);
     }
 }
