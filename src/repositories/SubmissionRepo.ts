@@ -17,13 +17,10 @@ export class SubmissionRepo implements ISubmissionRepo {
             quizId,
         }).save();
         answers.forEach(async (answerId) => {
-            const fetchedAnswer = await Answer.findOne({
-                id: answerId,
-            });
-            await Submission.createQueryBuilder()
-                .relation(Submission, "answers")
-                .of(newSubmission)
-                .add(fetchedAnswer);
+            await getManager().query(`
+                insert into \`submission_answer\`(\`id\`, \`submissionId\`, \`answerId\`) 
+                values(default, ${newSubmission.id}, ${answerId})
+            `);
         });
         return newSubmission;
     }
