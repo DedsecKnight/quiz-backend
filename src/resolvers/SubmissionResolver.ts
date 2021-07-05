@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
 import {
     Arg,
+    Ctx,
     Field,
     FieldResolver,
     ID,
@@ -18,6 +19,9 @@ import getDecorators from "inversify-inject-decorators";
 import { TYPES } from "../types/types";
 import { ISubmissionRepo, SubmissionArg } from "../interfaces/ISubmissionRepo";
 import { ResourceNotFound } from "../errors/ResourceNotFound";
+import { Answer } from "../entity/Answer";
+import { TContext } from "../types/TContext";
+import { Quiz } from "../entity/Quiz";
 const { lazyInject } = getDecorators(container);
 
 @InputType()
@@ -72,6 +76,34 @@ export class SubmissionResolver {
     async score(@Root() submission: Submission): Promise<number> {
         try {
             return this._submissionRepo.getScore(submission.id);
+        } catch (error) {
+            console.log(error);
+            throw new Error("Database Error");
+        }
+    }
+
+    @FieldResolver(() => [Answer])
+    async answers(
+        @Ctx() context: TContext,
+        @Root() submission: Submission
+    ): Promise<Answer[]> {
+        try {
+            const anss = context.submissionAnswersLoader.load(submission.id);
+            return anss;
+        } catch (error) {
+            console.log(error);
+            throw new Error("Database Error");
+        }
+    }
+
+    @FieldResolver(() => Quiz)
+    async quiz(
+        @Ctx() context: TContext,
+        @Root() submission: Submission
+    ): Promise<Quiz> {
+        try {
+            const quizObj = await context.quizLoader.load(submission.quizId);
+            return quizObj;
         } catch (error) {
             console.log(error);
             throw new Error("Database Error");

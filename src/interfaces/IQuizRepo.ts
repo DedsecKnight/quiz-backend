@@ -37,6 +37,9 @@ export interface IQuizRepo {
     // Find a quiz with given ID
     findById: (id: number) => Promise<Quiz>;
 
+    // Find a list of quizzes with given list of ID
+    findByIds: (ids: number[]) => Promise<Quiz[]>;
+
     // Find all quizzes that is written by given User
     findByAuthor: (authorId: number) => Promise<Quiz[]>;
 
