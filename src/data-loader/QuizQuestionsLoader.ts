@@ -7,8 +7,14 @@ const questionsBatch = async (keys: number[]): Promise<Question[][]> => {
         .leftJoinAndSelect("quiz.questions", "question")
         .where("quiz.id in (:...keys)", { keys })
         .getMany();
-    return quizzes.map((quiz) => quiz.questions);
+
+    const quizMap: { [key: number]: Question[] } = {};
+    quizzes.forEach((quiz) => {
+        quizMap[quiz.id] = quiz.questions;
+    });
+
+    return keys.map((key) => quizMap[key]);
 };
 
-export const QuestionsLoader = () =>
+export const QuizQuestionsLoader = () =>
     new DataLoader<number, Question[]>(questionsBatch);
