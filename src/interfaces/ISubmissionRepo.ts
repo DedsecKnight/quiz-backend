@@ -20,6 +20,11 @@ export interface ISubmissionRepo {
     // Get score of the submission with given id
     getScore: (submissionId: number) => Promise<number>;
 
+    // Get score of the submission with given id
+    getScores: (
+        submissionIds: number[]
+    ) => Promise<Array<{ id: number; score: number }>>;
+
     // Get all submissions of a user (pagination)
     // offset: number of submissions to skip
     // limit: number of submissions to get

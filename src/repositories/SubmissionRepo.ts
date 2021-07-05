@@ -39,6 +39,23 @@ export class SubmissionRepo implements ISubmissionRepo {
         `);
         return parseInt(queryData[0].score);
     }
+
+    async getScores(
+        submissionIds: number[]
+    ): Promise<Array<{ id: number; score: number }>> {
+        const queryData = await getManager().query(`
+            select count(case when answer.isCorrect = 1 then 1 end) * 100 / count(*) as score, submission.id from submission 
+            inner join submission_answer on submission.id = submission_answer.submissionId
+            inner join answer on submission_answer.answerId = answer.id
+            where submission.id in (${submissionIds.join(", ")})
+            group by submission.id
+        `);
+        return queryData.map((obj: { id: string; score: string }) => ({
+            id: parseInt(obj.id),
+            score: parseInt(obj.score),
+        }));
+    }
+
     getUserSubmissions(userId: number): Promise<Submission[]> {
         return Submission.find({
             where: { userId },

@@ -16,6 +16,7 @@ import { QuizQuestionsLoader } from "./data-loader/QuizQuestionsLoader";
 import { SubmissionAnswersLoader } from "./data-loader/SubmissionAnswersLoader";
 import { QuizLoader } from "./data-loader/QuizLoader";
 import { QuestionAnswersLoader } from "./data-loader/QuestionAnswersLoader";
+import { SubmissionScoreLoader } from "./data-loader/SubmissionScoreLoader";
 
 createConnection()
     .then(async () => {
@@ -40,6 +41,7 @@ createConnection()
                     quizQuestionsLoader: QuizQuestionsLoader(),
                     submissionAnswersLoader: SubmissionAnswersLoader(),
                     questionAnswersLoader: QuestionAnswersLoader(),
+                    submissionScoreLoader: SubmissionScoreLoader(),
                 } as TContext),
         });
 

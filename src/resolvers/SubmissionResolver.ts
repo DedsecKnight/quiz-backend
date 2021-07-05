@@ -73,9 +73,15 @@ export class SubmissionResolver {
     }
 
     @FieldResolver(() => Int)
-    async score(@Root() submission: Submission): Promise<number> {
+    async score(
+        @Ctx() context: TContext,
+        @Root() submission: Submission
+    ): Promise<number> {
         try {
-            return this._submissionRepo.getScore(submission.id);
+            const score = await context.submissionScoreLoader.load(
+                submission.id
+            );
+            return score;
         } catch (error) {
             console.log(error);
             throw new Error("Database Error");

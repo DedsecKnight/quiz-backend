@@ -6,6 +6,7 @@ import { QuestionAnswersLoader } from "../data-loader/QuestionAnswersLoader";
 import { QuizLoader } from "../data-loader/QuizLoader";
 import { QuizQuestionsLoader } from "../data-loader/QuizQuestionsLoader";
 import { SubmissionAnswersLoader } from "../data-loader/SubmissionAnswersLoader";
+import { SubmissionScoreLoader } from "../data-loader/SubmissionScoreLoader";
 import { UserLoader } from "../data-loader/UserLoader";
 
 export interface MyHeader extends IncomingHttpHeaders {
@@ -27,4 +28,5 @@ export interface TContext extends Request {
     categoryLoader: ReturnType<typeof CategoryLoader>;
     quizQuestionsLoader: ReturnType<typeof QuizQuestionsLoader>;
     submissionAnswersLoader: ReturnType<typeof SubmissionAnswersLoader>;
+    submissionScoreLoader: ReturnType<typeof SubmissionScoreLoader>;
 }
