@@ -12,7 +12,9 @@ import { UserLoader } from "./data-loader/UserLoader";
 import { TContext } from "./types/TContext";
 import { DifficultyLoader } from "./data-loader/DifficultyLoader";
 import { CategoryLoader } from "./data-loader/CategoryLoader";
-import { QuestionsLoader } from "./data-loader/QuestionsLoader";
+import { QuizQuestionsLoader } from "./data-loader/QuizQuestionsLoader";
+import { SubmissionAnswersLoader } from "./data-loader/SubmissionAnswersLoader";
+import { QuizLoader } from "./data-loader/QuizLoader";
 
 createConnection()
     .then(async () => {
@@ -31,9 +33,11 @@ createConnection()
                 ({
                     ...req,
                     userLoader: UserLoader(),
+                    quizLoader: QuizLoader(),
                     difficultyLoader: DifficultyLoader(),
                     categoryLoader: CategoryLoader(),
-                    questionsLoader: QuestionsLoader(),
+                    quizQuestionsLoader: QuizQuestionsLoader(),
+                    submissionAnswersLoader: SubmissionAnswersLoader(),
                 } as TContext),
         });
 

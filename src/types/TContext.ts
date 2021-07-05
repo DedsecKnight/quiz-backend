@@ -2,7 +2,9 @@ import { Request } from "express";
 import { IncomingHttpHeaders } from "http2";
 import { CategoryLoader } from "../data-loader/CategoryLoader";
 import { DifficultyLoader } from "../data-loader/DifficultyLoader";
-import { QuestionsLoader } from "../data-loader/QuestionsLoader";
+import { QuizLoader } from "../data-loader/QuizLoader";
+import { QuizQuestionsLoader } from "../data-loader/QuizQuestionsLoader";
+import { SubmissionAnswersLoader } from "../data-loader/SubmissionAnswersLoader";
 import { UserLoader } from "../data-loader/UserLoader";
 
 export interface MyHeader extends IncomingHttpHeaders {
@@ -18,7 +20,9 @@ export interface TContext extends Request {
     user: UserData;
     headers: MyHeader;
     userLoader: ReturnType<typeof UserLoader>;
+    quizLoader: ReturnType<typeof QuizLoader>;
     difficultyLoader: ReturnType<typeof DifficultyLoader>;
     categoryLoader: ReturnType<typeof CategoryLoader>;
-    questionsLoader: ReturnType<typeof QuestionsLoader>;
+    quizQuestionsLoader: ReturnType<typeof QuizQuestionsLoader>;
+    submissionAnswersLoader: ReturnType<typeof SubmissionAnswersLoader>;
 }
