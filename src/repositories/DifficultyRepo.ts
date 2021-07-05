@@ -2,6 +2,9 @@ import { injectable } from "inversify";
 import { Difficulty } from "../entity/Difficulty";
 import { Quiz } from "../entity/Quiz";
 import { IDifficultyRepo } from "../interfaces/IDifficultyRepo";
+import { IQuizRepo } from "../interfaces/IQuizRepo";
+import { container } from "../inversify.config";
+import { TYPES } from "../types/types";
 
 @injectable()
 export class DifficultyRepo implements IDifficultyRepo {
@@ -18,19 +21,11 @@ export class DifficultyRepo implements IDifficultyRepo {
     }
 
     async getQuizzes(type: string): Promise<Quiz[]> {
-        const diffObj = await Difficulty.findOne({
-            relations: [
-                "quizzes",
-                "quizzes.questions",
-                "quizzes.questions.answers",
-                "quizzes.category",
-            ],
-            where: {
-                type,
-            },
-        });
-        if (!diffObj) return [];
-        return diffObj.quizzes;
+        const diffObj = await this.getObjByType(type);
+        const quizzes = await container
+            .get<IQuizRepo>(TYPES.IQuizRepo)
+            .findByDifficulty(diffObj.id);
+        return quizzes;
     }
 
     getObjByType(type: string): Promise<Difficulty> {

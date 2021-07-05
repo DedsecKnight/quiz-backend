@@ -60,8 +60,7 @@ export class QuizResolver {
         @Arg("difficulty") difficulty: string
     ): Promise<Quiz[]> {
         try {
-            const diffObj = await this._difficultyRepo.getObjByType(difficulty);
-            const quizzes = await this._quizRepo.findByDifficulty(diffObj.id);
+            const quizzes = await this._difficultyRepo.getQuizzes(difficulty);
             return quizzes;
         } catch (error) {
             console.log(error);
@@ -74,10 +73,7 @@ export class QuizResolver {
         @Arg("category") category: string
     ): Promise<Quiz[]> {
         try {
-            const catObj = await this._categoryRepo.findByCategoryName(
-                category
-            );
-            const quizzes = await this._quizRepo.findByCategory(catObj.id);
+            const quizzes = await this._categoryRepo.getQuizzes(category);
             return quizzes;
         } catch (error) {
             console.log(error);
