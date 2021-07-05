@@ -1,6 +1,5 @@
 import { injectable } from "inversify";
 import { getManager } from "typeorm";
-import { Answer } from "../entity/Answer";
 import { Submission } from "../entity/Submission";
 import { CountData } from "../interfaces/ICountData";
 import { ISubmissionRepo, SubmissionArg } from "../interfaces/ISubmissionRepo";
