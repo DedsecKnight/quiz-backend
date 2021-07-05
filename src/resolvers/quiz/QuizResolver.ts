@@ -82,33 +82,23 @@ export class QuizResolver {
     }
 
     @Query(() => Quiz)
-    async quizById(@Arg("id") id: number): Promise<Quiz | null> {
-        try {
-            const quiz = await this._quizRepo.findById(id);
-            if (!quiz) throw new ResourceNotFound("Quiz does not exist");
-            return quiz;
-        } catch (error) {
-            if (error instanceof ResourceNotFound) throw error;
-            else {
-                console.log(error);
-                throw new Error("Database Error");
-            }
-        }
+    async quizById(@Arg("id") id: number): Promise<Quiz> {
+        const quiz = await this._quizRepo.findById(id).catch((error) => {
+            console.log(error);
+            throw new Error("Database Error");
+        });
+        if (!quiz) throw new ResourceNotFound("Quiz does not exist");
+        return quiz;
     }
 
     @Query(() => Quiz)
     async quizByName(@Arg("name") name: string): Promise<Quiz> {
-        try {
-            const quiz = await this._quizRepo.findByName(name);
-            if (!quiz) throw new ResourceNotFound("Quiz does not exist");
-            return quiz;
-        } catch (error) {
-            if (error instanceof ResourceNotFound) throw error;
-            else {
-                console.log(error);
-                throw new Error("Database Error");
-            }
-        }
+        const quiz = await this._quizRepo.findByName(name).catch((error) => {
+            console.log(error);
+            throw new Error("Database Error");
+        });
+        if (!quiz) throw new ResourceNotFound("Quiz does not exist");
+        return quiz;
     }
 
     @Query(() => [Quiz])

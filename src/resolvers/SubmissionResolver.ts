@@ -58,18 +58,15 @@ export class SubmissionResolver {
 
     @Query(() => Submission)
     async submissionById(@Arg("id") id: number): Promise<Submission> {
-        try {
-            const submission = await this._submissionRepo.findById(id);
-            if (!submission)
-                throw new ResourceNotFound("Submission does not exist");
-            return submission;
-        } catch (error) {
-            if (error instanceof ResourceNotFound) throw error;
-            else {
+        const submission = await this._submissionRepo
+            .findById(id)
+            .catch((error) => {
                 console.log(error);
                 throw new Error("Database Error");
-            }
-        }
+            });
+        if (!submission)
+            throw new ResourceNotFound("Submission does not exist");
+        return submission;
     }
 
     @FieldResolver(() => Int)
