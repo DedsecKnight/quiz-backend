@@ -1,6 +1,5 @@
 import * as DataLoader from "dataloader";
 import { Answer } from "../entity/Answer";
-import { Submission } from "../entity/Submission";
 import { ISubmissionRepo } from "../interfaces/ISubmissionRepo";
 import { container } from "../inversify.config";
 import { TYPES } from "../types/types";
