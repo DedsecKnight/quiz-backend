@@ -15,4 +15,10 @@ export class QuestionRepo implements IQuestionRepo {
             quizId,
         });
     }
+    findByIdsWithAnswers(ids: number[]): Promise<Question[]> {
+        return Question.createQueryBuilder("question")
+            .leftJoinAndSelect("question.answers", "answer")
+            .where("question.id in (:...ids)", { ids })
+            .getMany();
+    }
 }

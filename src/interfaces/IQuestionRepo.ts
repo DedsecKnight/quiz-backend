@@ -11,4 +11,7 @@ export interface IQuestionRepo {
 
     // Get all questions of a quiz
     findByQuizId: (id: number) => Promise<Question[]>;
+
+    // Get questions with answers eagerly loaded based on given id list
+    findByIdsWithAnswers: (ids: number[]) => Promise<Question[]>;
 }

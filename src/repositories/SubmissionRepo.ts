@@ -23,9 +23,18 @@ export class SubmissionRepo implements ISubmissionRepo {
         });
         return newSubmission;
     }
+
     findById(id: number): Promise<Submission> {
         return Submission.findOne(id);
     }
+
+    findByIdsWithAnswers(ids: number[]): Promise<Submission[]> {
+        return Submission.createQueryBuilder("submission")
+            .leftJoinAndSelect("submission.answers", "answer")
+            .where("submission.id in (:...ids)", { ids })
+            .getMany();
+    }
+
     async getScore(submissionId: number): Promise<number> {
         const queryData = await getManager().query(`
             select count(case when answer.isCorrect = 1 then 1 end) * 100 / count(*) as score, submission.userId from submission 

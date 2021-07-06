@@ -1,12 +1,15 @@
 import * as DataLoader from "dataloader";
 import { Answer } from "../entity/Answer";
 import { Submission } from "../entity/Submission";
+import { ISubmissionRepo } from "../interfaces/ISubmissionRepo";
+import { container } from "../inversify.config";
+import { TYPES } from "../types/types";
 
 const answersBatch = async (keys: number[]): Promise<Answer[][]> => {
-    const submissions = await Submission.createQueryBuilder("submission")
-        .leftJoinAndSelect("submission.answers", "answer")
-        .where("submission.id in (:...keys)", { keys })
-        .getMany();
+    const submissionRepo = container.get<ISubmissionRepo>(
+        TYPES.ISubmissionRepo
+    );
+    const submissions = await submissionRepo.findByIdsWithAnswers(keys);
     const subMap: { [key: number]: Answer[] } = {};
     submissions.forEach((sub) => {
         subMap[sub.id] = sub.answers;

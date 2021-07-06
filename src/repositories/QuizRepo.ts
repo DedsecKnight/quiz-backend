@@ -86,6 +86,13 @@ export class QuizRepo implements IQuizRepo {
         return Quiz.findByIds(ids);
     }
 
+    findByIdsWithQuestions(ids: number[]): Promise<Quiz[]> {
+        return Quiz.createQueryBuilder("quiz")
+            .leftJoinAndSelect("quiz.questions", "question")
+            .where("quiz.id in (:...ids)", { ids })
+            .getMany();
+    }
+
     async findByAuthor(authorId: number): Promise<Quiz[]> {
         return Quiz.find({
             where: { authorId },

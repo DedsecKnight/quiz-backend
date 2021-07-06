@@ -1,12 +1,12 @@
 import * as DataLoader from "dataloader";
 import { Question } from "../entity/Question";
-import { Quiz } from "../entity/Quiz";
+import { IQuizRepo } from "../interfaces/IQuizRepo";
+import { container } from "../inversify.config";
+import { TYPES } from "../types/types";
 
 const questionsBatch = async (keys: number[]): Promise<Question[][]> => {
-    const quizzes = await Quiz.createQueryBuilder("quiz")
-        .leftJoinAndSelect("quiz.questions", "question")
-        .where("quiz.id in (:...keys)", { keys })
-        .getMany();
+    const quizRepo = container.get<IQuizRepo>(TYPES.IQuizRepo);
+    const quizzes = await quizRepo.findByIdsWithQuestions(keys);
 
     const quizMap: { [key: number]: Question[] } = {};
     quizzes.forEach((quiz) => {
