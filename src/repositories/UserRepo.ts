@@ -4,7 +4,6 @@ import { inject, injectable } from "inversify";
 import { getManager } from "typeorm";
 import { TYPES } from "../types/types";
 import { ISubmissionRepo } from "../interfaces/ISubmissionRepo";
-import { Submission } from "../entity/Submission";
 
 @injectable()
 export class UserRepo implements IUserRepo {
