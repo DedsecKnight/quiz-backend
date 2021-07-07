@@ -1,10 +1,14 @@
 import { User } from "../entity/User";
 import { IUserRepo, UserScore } from "../interfaces/IUserRepo";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { getManager } from "typeorm";
+import { TYPES } from "../types/types";
+import { ISubmissionRepo } from "../interfaces/ISubmissionRepo";
 
 @injectable()
 export class UserRepo implements IUserRepo {
+    @inject(TYPES.ISubmissionRepo) private _submissionRepo: ISubmissionRepo;
+
     findById(id: number): Promise<User> {
         return User.findOne({ id });
     }
@@ -25,17 +29,34 @@ export class UserRepo implements IUserRepo {
         return User.findOne({ email });
     }
 
-    getScore(id: number): Promise<UserScore[]> {
-        return getManager().query(`
-            select sum(score) as totalScore, max(score) as maxScore from (
-                select T.quizId, max(score) as score from (
-                    select submission.id, submission.userId, submission.quizId, answer.answer, (sum(answer.isCorrect) / count(*))*100 as score from submission 
-                    inner join submission_answer on submission.id = submission_answer.submissionId
-                    inner join answer on submission_answer.answerId = answer.id
-                    group by submission.id
-                ) as T where userId = ${id} group by T.quizId
-            ) as T2;
-        `);
+    async getScore(userId: number): Promise<UserScore> {
+        const queryData: { totalScore: string; maxScore: string } =
+            await getManager()
+                .createQueryBuilder()
+                .select("sum(score)", "totalScore")
+                .addSelect("max(score)", "maxScore")
+                .from((subQuery) => {
+                    // Get max score of each quizzes attempted by user
+                    return subQuery
+                        .from(
+                            `(${this._submissionRepo.getScoreAllSubmissions()})`,
+                            "T"
+                        )
+                        .select("max(score)", "score")
+                        .where("T.userId = :userId", { userId })
+                        .groupBy("T.quizId");
+                }, "T2")
+                .getRawOne();
+        if (!queryData)
+            return {
+                maxScore: 0,
+                totalScore: 0,
+            };
+
+        return {
+            maxScore: parseInt(queryData.maxScore),
+            totalScore: parseInt(queryData.totalScore),
+        };
     }
 
     findByIds(ids: number[]): Promise<User[]> {

@@ -47,4 +47,7 @@ export interface ISubmissionRepo {
 
     // Get count of all submissions made by a user
     getUserSubmissionsCount: (userId: number) => Promise<CountData>;
+
+    // Return SQL query to fetch score of all submissions
+    getScoreAllSubmissions: () => string;
 }

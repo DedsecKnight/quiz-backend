@@ -1,5 +1,4 @@
 import { injectable } from "inversify";
-import { getManager } from "typeorm";
 import { Submission } from "../entity/Submission";
 import { CountData } from "../interfaces/ICountData";
 import { ISubmissionRepo, SubmissionArg } from "../interfaces/ISubmissionRepo";
@@ -15,12 +14,10 @@ export class SubmissionRepo implements ISubmissionRepo {
             userId,
             quizId,
         }).save();
-        answers.forEach(async (answerId) => {
-            await getManager().query(`
-                insert into \`submission_answer\`(\`id\`, \`submissionId\`, \`answerId\`) 
-                values(default, ${newSubmission.id}, ${answerId})
-            `);
-        });
+        await Submission.createQueryBuilder("submission")
+            .relation("answers")
+            .of(newSubmission)
+            .add(answers);
         return newSubmission;
     }
 
@@ -36,28 +33,36 @@ export class SubmissionRepo implements ISubmissionRepo {
     }
 
     async getScore(submissionId: number): Promise<number> {
-        const queryData = await getManager().query(`
-            select count(case when answer.isCorrect = 1 then 1 end) * 100 / count(*) as score, submission.userId from submission 
-            inner join submission_answer on submission.id = submission_answer.submissionId
-            inner join answer on submission_answer.answerId = answer.id
-            where submission.id = ${submissionId}
-        `);
-        return parseInt(queryData[0].score);
+        const queryData: { score: string } =
+            await Submission.createQueryBuilder("submission")
+                .leftJoinAndSelect("submission.answers", "answer")
+                .select(
+                    "count(case when answer.isCorrect = 1 then 1 end) * 100 / count(*)",
+                    "score"
+                )
+                .where("submission.id = :submissionId", { submissionId })
+                .getRawOne();
+        if (!queryData) return 0;
+        return parseInt(queryData.score);
     }
 
     async getScores(
         submissionIds: number[]
     ): Promise<Array<{ id: number; score: number }>> {
-        const queryData = await getManager().query(`
-            select count(case when answer.isCorrect = 1 then 1 end) * 100 / count(*) as score, submission.id from submission 
-            inner join submission_answer on submission.id = submission_answer.submissionId
-            inner join answer on submission_answer.answerId = answer.id
-            where submission.id in (${submissionIds.join(", ")})
-            group by submission.id
-        `);
-        return queryData.map((obj: { id: string; score: string }) => ({
-            id: parseInt(obj.id),
-            score: parseInt(obj.score),
+        const queryData: Array<{ id: number; score: string }> =
+            await Submission.createQueryBuilder("submission")
+                .leftJoinAndSelect("submission.answers", "answer")
+                .select(
+                    "count(case when answer.isCorrect = 1 then 1 end) * 100 / count(*)",
+                    "score"
+                )
+                .addSelect("submission.id", "id")
+                .where("submission.id in (:...ids)", { ids: submissionIds })
+                .groupBy("submission.id")
+                .getRawMany();
+        return queryData.map(({ id, score }) => ({
+            id,
+            score: parseInt(score),
         }));
     }
 
@@ -98,5 +103,17 @@ export class SubmissionRepo implements ISubmissionRepo {
         } catch (error) {
             return Promise.reject(error);
         }
+    }
+
+    getScoreAllSubmissions(): string {
+        return Submission.createQueryBuilder("submission")
+            .innerJoinAndSelect("submission.answers", "answer")
+            .select([
+                "submission.userId AS userID",
+                "submission.quizId AS quizId",
+                "(sum(answer.isCorrect) / count(*))*100 AS score ",
+            ])
+            .groupBy("submission.id")
+            .getQuery();
     }
 }
