@@ -37,11 +37,24 @@ export interface IQuizRepo {
     // Find a quiz with given ID
     findById: (id: number) => Promise<Quiz>;
 
+    // Find a list of quizzes with given list of ID
+    findByIds: (ids: number[]) => Promise<Quiz[]>;
+
+    // Find a list of quizzes with eager loading of questions
+    // with given list of ID
+    findByIdsWithQuestions: (ids: number[]) => Promise<Quiz[]>;
+
     // Find all quizzes that is written by given User
     findByAuthor: (authorId: number) => Promise<Quiz[]>;
 
     // Find a quiz with a given name
     findByName: (name: string) => Promise<Quiz>;
+
+    // Find all quizzes by difficulty
+    findByDifficulty: (difficultyId: number) => Promise<Quiz[]>;
+
+    // Find all quizzes by category
+    findByCategory: (categoryId: number) => Promise<Quiz[]>;
 
     // Find quizzes (pagination)
     // offset: number of submissions to skip

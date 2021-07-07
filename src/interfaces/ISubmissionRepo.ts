@@ -17,8 +17,17 @@ export interface ISubmissionRepo {
     // Find a submission with a given id
     findById: (id: number) => Promise<Submission>;
 
+    // Find list of submissions with a given id list
+    // (With answers eagerly loaded)
+    findByIdsWithAnswers: (ids: number[]) => Promise<Submission[]>;
+
     // Get score of the submission with given id
     getScore: (submissionId: number) => Promise<number>;
+
+    // Get score of the submission with given id
+    getScores: (
+        submissionIds: number[]
+    ) => Promise<Array<{ id: number; score: number }>>;
 
     // Get all submissions of a user (pagination)
     // offset: number of submissions to skip

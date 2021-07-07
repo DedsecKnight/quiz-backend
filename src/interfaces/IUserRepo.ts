@@ -3,9 +3,6 @@ import { User } from "../entity/User";
 
 @ObjectType()
 export class AuthResponse {
-    @Field(() => Int)
-    statusCode: number;
-
     @Field()
     token: string;
 
@@ -42,4 +39,8 @@ export interface IUserRepo {
     // Get total and max score among all submissions of a user
     // id: id of target user
     getScore: (id: number) => Promise<UserScore[]>;
+
+    // Get user by list of id
+    // ids: array of ids
+    findByIds: (ids: number[]) => Promise<User[]>;
 }

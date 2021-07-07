@@ -2,6 +2,9 @@ import { injectable } from "inversify";
 import { Category } from "../entity/Category";
 import { Quiz } from "../entity/Quiz";
 import { ICategoryRepo } from "../interfaces/ICategoryRepo";
+import { IQuizRepo } from "../interfaces/IQuizRepo";
+import { container } from "../inversify.config";
+import { TYPES } from "../types/types";
 
 @injectable()
 export class CategoryRepo implements ICategoryRepo {
@@ -14,17 +17,26 @@ export class CategoryRepo implements ICategoryRepo {
     }
 
     async getQuizzes(categoryName: string): Promise<Quiz[]> {
-        const catObj = await Category.findOne({
-            relations: [
-                "quizzes",
-                "quizzes.questions",
-                "quizzes.questions.answers",
-                "quizzes.difficulty",
-                "quizzes.category",
-            ],
-            where: { categoryName },
+        const catObj = await this.findByCategoryName(categoryName);
+        const quizzes = await container
+            .get<IQuizRepo>(TYPES.IQuizRepo)
+            .findByCategory(catObj.id);
+        return quizzes;
+    }
+
+    async findById(id: number): Promise<Category> {
+        return Category.findOne(id);
+    }
+
+    async findByIds(ids: number[]): Promise<Category[]> {
+        return Category.findByIds(ids);
+    }
+
+    async findByCategoryName(categoryName: string): Promise<Category> {
+        return Category.findOne({
+            where: {
+                categoryName,
+            },
         });
-        if (!catObj) return [];
-        return catObj.quizzes;
     }
 }

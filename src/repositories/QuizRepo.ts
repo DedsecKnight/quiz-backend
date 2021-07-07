@@ -75,36 +75,26 @@ export class QuizRepo implements IQuizRepo {
         return newQuiz;
     }
     async findAll(): Promise<Quiz[]> {
-        return Quiz.find({
-            relations: ["difficulty", "category", "author"],
-        });
+        return Quiz.find();
     }
 
     async findById(id: number): Promise<Quiz> {
-        return Quiz.findOne(
-            { id },
-            {
-                relations: [
-                    "difficulty",
-                    "questions",
-                    "questions.answers",
-                    "submissions",
-                    "category",
-                    "author",
-                ],
-            }
-        );
+        return Quiz.findOne({ id });
+    }
+
+    findByIds(ids: number[]): Promise<Quiz[]> {
+        return Quiz.findByIds(ids);
+    }
+
+    findByIdsWithQuestions(ids: number[]): Promise<Quiz[]> {
+        return Quiz.createQueryBuilder("quiz")
+            .leftJoinAndSelect("quiz.questions", "question")
+            .where("quiz.id in (:...ids)", { ids })
+            .getMany();
     }
 
     async findByAuthor(authorId: number): Promise<Quiz[]> {
         return Quiz.find({
-            relations: [
-                "difficulty",
-                "questions",
-                "questions.answers",
-                "submissions",
-                "category",
-            ],
             where: { authorId },
         });
     }
@@ -112,10 +102,23 @@ export class QuizRepo implements IQuizRepo {
     async findByName(name: string): Promise<Quiz> {
         return Quiz.createQueryBuilder("quiz")
             .where("LOWER(quiz.quizName) = LOWER(:name)", { name })
-            .innerJoinAndSelect("quiz.difficulty", "difficulty")
-            .innerJoinAndSelect("quiz.category", "category")
-            .innerJoinAndSelect("quiz.author", "user")
             .getOne();
+    }
+
+    findByDifficulty(difficultyId: number): Promise<Quiz[]> {
+        return Quiz.find({
+            where: {
+                difficultyId,
+            },
+        });
+    }
+
+    findByCategory(categoryId: number): Promise<Quiz[]> {
+        return Quiz.find({
+            where: {
+                categoryId,
+            },
+        });
     }
 
     async findWithOffsetAndLimit(
@@ -123,9 +126,6 @@ export class QuizRepo implements IQuizRepo {
         limit: number
     ): Promise<Quiz[]> {
         return Quiz.createQueryBuilder("quiz")
-            .innerJoinAndSelect("quiz.difficulty", "difficulty")
-            .innerJoinAndSelect("quiz.category", "category")
-            .innerJoinAndSelect("quiz.author", "user")
             .skip(offset)
             .take(limit)
             .getMany();

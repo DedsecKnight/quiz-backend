@@ -54,14 +54,12 @@ export class UserResolver {
         @Arg("email") email: string,
         @Arg("password") password: string
     ): Promise<AuthResponse> {
-        let existingUser: User;
-
-        try {
-            existingUser = await this._userRepo.findByEmail(email);
-        } catch (error) {
-            console.log(error);
-            throw new Error("Database Error");
-        }
+        const existingUser = await this._userRepo
+            .findByEmail(email)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
 
         if (!existingUser) throw new AuthenticationError("User does not exist");
         const checkValid = await bcrypt.compare(
@@ -72,7 +70,6 @@ export class UserResolver {
         if (!checkValid) throw new AuthenticationError("Invalid credentials");
 
         return {
-            statusCode: 200,
             token: generateToken({
                 id: existingUser.id,
             }),
@@ -85,13 +82,12 @@ export class UserResolver {
     @Query(() => User)
     @UseMiddleware(checkAuthorization)
     async myInfo(@Ctx() context: TContext): Promise<User> {
-        let user: User;
-        try {
-            user = await this._userRepo.findById(context.user.id);
-        } catch (error) {
-            console.log(error);
-            throw new Error("Database Error");
-        }
+        const user = await this._userRepo
+            .findById(context.user.id)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
         if (!user) throw new AuthenticationError("User Not Found");
         return user;
     }
@@ -99,15 +95,13 @@ export class UserResolver {
     @Query(() => [Submission])
     @UseMiddleware(checkAuthorization)
     async mySubmissions(@Ctx() context: TContext): Promise<Submission[]> {
-        try {
-            const submissions = await this._submissionRepo.getUserSubmissions(
-                context.user.id
-            );
-            return submissions;
-        } catch (error) {
-            console.log(error);
-            throw new Error("Database Error");
-        }
+        const submissions = await this._submissionRepo
+            .getUserSubmissions(context.user.id)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
+        return submissions;
     }
 
     @Query(() => [Submission])
@@ -116,17 +110,13 @@ export class UserResolver {
         @Ctx() context: TContext,
         @Arg("limit") limit: number
     ): Promise<Submission[]> {
-        try {
-            const submissions =
-                await this._submissionRepo.getUserRecentSubmissions(
-                    context.user.id,
-                    limit
-                );
-            return submissions;
-        } catch (error) {
-            console.log(error);
-            throw new Error("Database Error");
-        }
+        const submissions = await this._submissionRepo
+            .getUserRecentSubmissions(context.user.id, limit)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
+        return submissions;
     }
 
     @Mutation(() => AuthResponse)
@@ -136,14 +126,12 @@ export class UserResolver {
         @Arg("email") email: string,
         @Arg("password") password: string
     ): Promise<AuthResponse> {
-        let existingUser: User;
-
-        try {
-            existingUser = await this._userRepo.findByEmail(email);
-        } catch (error) {
-            console.log(error);
-            throw new Error("Database error");
-        }
+        const existingUser = await this._userRepo
+            .findByEmail(email)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database error");
+            });
 
         if (existingUser)
             throw new UserInputError("Create user failed", {
@@ -152,30 +140,21 @@ export class UserResolver {
                 },
             });
 
-        let hashedPassword: string;
+        const hashedPassword = await bcrypt
+            .hash(password, 10)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
 
-        try {
-            hashedPassword = await bcrypt.hash(password, 10);
-        } catch (error) {
-            console.log(error);
-            throw new Error("Database Error");
-        }
-
-        let newUser: User;
-
-        try {
-            newUser = await this._userRepo.initializeObj(
-                name,
-                email,
-                hashedPassword
-            );
-        } catch (error) {
-            console.log(error);
-            throw new Error("Database Error");
-        }
+        const newUser = await this._userRepo
+            .initializeObj(name, email, hashedPassword)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
 
         return {
-            statusCode: 200,
             token: generateToken({
                 id: newUser.id,
             }),
@@ -188,13 +167,13 @@ export class UserResolver {
     @Query(() => [Quiz])
     @UseMiddleware(checkAuthorization)
     async myQuizzes(@Ctx() context: TContext): Promise<Quiz[]> {
-        try {
-            const quizzes = this._quizRepo.findByAuthor(context.user.id);
-            return quizzes;
-        } catch (error) {
-            console.log(error);
-            throw new Error("Database Error");
-        }
+        const quizzes = this._quizRepo
+            .findByAuthor(context.user.id)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
+        return quizzes;
     }
 
     @Mutation(() => User)
@@ -226,7 +205,10 @@ export class UserResolver {
     async myScore(@Ctx() context: TContext): Promise<UserScore> {
         try {
             const data = await this._userRepo.getScore(context.user.id);
-            return data[0];
+            return {
+                maxScore: data[0].maxScore || 0,
+                totalScore: data[0].totalScore || 0,
+            };
         } catch (error) {
             console.log(error);
             throw new Error("Database Error");
@@ -236,26 +218,24 @@ export class UserResolver {
     @Query(() => CountData)
     @UseMiddleware(checkAuthorization)
     async countMySubmissions(@Ctx() context: TContext): Promise<CountData> {
-        try {
-            const data = await this._submissionRepo.getUserSubmissionsCount(
-                context.user.id
-            );
-            return data;
-        } catch (error) {
-            console.log(error);
-            throw new Error("Database Error");
-        }
+        const data = await this._submissionRepo
+            .getUserSubmissionsCount(context.user.id)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
+        return data;
     }
 
     @Query(() => CountData)
     @UseMiddleware(checkAuthorization)
     async countMyQuizzes(@Ctx() context: TContext): Promise<CountData> {
-        try {
-            const data = await this._quizRepo.getUserQuizCount(context.user.id);
-            return data;
-        } catch (error) {
-            console.log(error);
-            throw new Error("Database Error");
-        }
+        const data = await this._quizRepo
+            .getUserQuizCount(context.user.id)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
+        return data;
     }
 }

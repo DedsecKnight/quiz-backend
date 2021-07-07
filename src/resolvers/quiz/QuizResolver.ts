@@ -6,6 +6,8 @@ import {
     Query,
     UseMiddleware,
     Ctx,
+    FieldResolver,
+    Root,
 } from "type-graphql";
 import { Quiz } from "../../entity/Quiz";
 import { IQuizRepo } from "../../interfaces/IQuizRepo";
@@ -22,6 +24,10 @@ import { validateCreateQuizData } from "../../middlewares/validateQuizData";
 import { AuthenticationError } from "apollo-server";
 import { checkAuthorization } from "../../middlewares/auth";
 import { TContext } from "../../types/TContext";
+import { User } from "../../entity/User";
+import { Difficulty } from "../../entity/Difficulty";
+import { Category } from "../../entity/Category";
+import { Question } from "../../entity/Question";
 const { lazyInject } = getDecorators(container);
 
 @Resolver(Quiz)
@@ -50,7 +56,7 @@ export class QuizResolver {
     }
 
     @Query(() => [Quiz])
-    async quizByDifficulty(
+    async quizzesByDifficulty(
         @Arg("difficulty") difficulty: string
     ): Promise<Quiz[]> {
         try {
@@ -63,7 +69,9 @@ export class QuizResolver {
     }
 
     @Query(() => [Quiz])
-    async quizByCategories(@Arg("category") category: string): Promise<Quiz[]> {
+    async quizzesByCategory(
+        @Arg("category") category: string
+    ): Promise<Quiz[]> {
         try {
             const quizzes = await this._categoryRepo.getQuizzes(category);
             return quizzes;
@@ -74,33 +82,23 @@ export class QuizResolver {
     }
 
     @Query(() => Quiz)
-    async quizById(@Arg("id") id: number): Promise<Quiz | null> {
-        try {
-            const quiz = await this._quizRepo.findById(id);
-            if (!quiz) throw new ResourceNotFound("Quiz does not exist");
-            return quiz;
-        } catch (error) {
-            if (error instanceof ResourceNotFound) throw error;
-            else {
-                console.log(error);
-                throw new Error("Database Error");
-            }
-        }
+    async quizById(@Arg("id") id: number): Promise<Quiz> {
+        const quiz = await this._quizRepo.findById(id).catch((error) => {
+            console.log(error);
+            throw new Error("Database Error");
+        });
+        if (!quiz) throw new ResourceNotFound("Quiz does not exist");
+        return quiz;
     }
 
     @Query(() => Quiz)
     async quizByName(@Arg("name") name: string): Promise<Quiz> {
-        try {
-            const quiz = await this._quizRepo.findByName(name);
-            if (!quiz) throw new ResourceNotFound("Quiz does not exist");
-            return quiz;
-        } catch (error) {
-            if (error instanceof ResourceNotFound) throw error;
-            else {
-                console.log(error);
-                throw new Error("Database Error");
-            }
-        }
+        const quiz = await this._quizRepo.findByName(name).catch((error) => {
+            console.log(error);
+            throw new Error("Database Error");
+        });
+        if (!quiz) throw new ResourceNotFound("Quiz does not exist");
+        return quiz;
     }
 
     @Query(() => [Quiz])
@@ -147,6 +145,55 @@ export class QuizResolver {
         try {
             const data = await this._quizRepo.getAllQuizCount();
             return data;
+        } catch (error) {
+            console.log(error);
+            throw new Error("Database Error");
+        }
+    }
+
+    @FieldResolver(() => User)
+    async author(@Ctx() context: TContext, @Root() quiz: Quiz) {
+        try {
+            const author = await context.userLoader.load(quiz.authorId);
+            return author;
+        } catch (error) {
+            console.log(error);
+            throw new Error("Database Error");
+        }
+    }
+
+    @FieldResolver(() => Difficulty)
+    async difficulty(@Ctx() context: TContext, @Root() quiz: Quiz) {
+        try {
+            const diffObj = await context.difficultyLoader.load(
+                quiz.difficultyId
+            );
+            return diffObj;
+        } catch (error) {
+            console.log(error);
+            throw new Error("Database Error");
+        }
+    }
+
+    @FieldResolver(() => Category)
+    async category(@Ctx() context: TContext, @Root() quiz: Quiz) {
+        try {
+            const category = await context.categoryLoader.load(quiz.categoryId);
+            return category;
+        } catch (error) {
+            console.log(error);
+            throw new Error("Database Error");
+        }
+    }
+
+    @FieldResolver(() => [Question])
+    async questions(
+        @Ctx() context: TContext,
+        @Root() quiz: Quiz
+    ): Promise<Question[]> {
+        try {
+            const questions = await context.quizQuestionsLoader.load(quiz.id);
+            return questions;
         } catch (error) {
             console.log(error);
             throw new Error("Database Error");

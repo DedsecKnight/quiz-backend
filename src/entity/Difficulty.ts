@@ -19,7 +19,7 @@ export class Difficulty extends BaseEntity {
     @Field()
     type: string;
 
-    @Field(() => [Quiz])
+    // @Field(() => [Quiz])
     @OneToMany(() => Quiz, (quiz: Quiz) => quiz.difficulty)
     quizzes: Quiz[];
 }

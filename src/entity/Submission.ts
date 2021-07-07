@@ -1,4 +1,4 @@
-import { Field, ID, Int, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import {
     BaseEntity,
     Column,
@@ -30,12 +30,10 @@ export class Submission extends BaseEntity {
     @Column()
     quizId: number;
 
-    @Field(() => Quiz)
     @ManyToOne(() => Quiz, (quiz: Quiz) => quiz.submissions)
     @JoinColumn({ name: "quizId" })
     quiz: Quiz;
 
-    @Field(() => [Answer])
     @ManyToMany(() => Answer, (answer) => answer.submissions)
     @JoinTable({ name: "submission_answer" })
     answers: Answer[];

@@ -28,19 +28,17 @@ export class Quiz extends BaseEntity {
     @Column()
     authorId: number;
 
-    @Field(() => User)
     @ManyToOne(() => User, (user: User) => user.quizzes)
     @JoinColumn({ name: "authorId" })
     author: User;
 
     @Column()
     difficultyId: number;
-    @Field(() => Difficulty)
+
     @ManyToOne(() => Difficulty, (difficulty: Difficulty) => difficulty.quizzes)
     @JoinColumn({ name: "difficultyId" })
     difficulty: Difficulty;
 
-    @Field(() => [Question])
     @OneToMany(() => Question, (question) => question.quiz)
     questions: Question[];
 
@@ -49,8 +47,8 @@ export class Quiz extends BaseEntity {
 
     @Column()
     categoryId: number;
+
     @ManyToOne(() => Category, (category: Category) => category.quizzes)
     @JoinColumn({ name: "categoryId" })
-    @Field(() => Category)
     category: Category;
 }

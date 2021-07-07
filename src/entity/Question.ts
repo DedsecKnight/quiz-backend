@@ -22,7 +22,6 @@ export class Question extends BaseEntity {
     @Column()
     question: string;
 
-    @Field(() => [Answer])
     @OneToMany(() => Answer, (answer: Answer) => answer.question)
     answers: Answer[];
 
