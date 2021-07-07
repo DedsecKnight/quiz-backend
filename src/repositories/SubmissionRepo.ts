@@ -33,7 +33,7 @@ export class SubmissionRepo implements ISubmissionRepo {
     }
 
     async getScore(submissionId: number): Promise<number> {
-        const queryData: Array<{ score: string }> =
+        const queryData: { score: string } =
             await Submission.createQueryBuilder("submission")
                 .leftJoinAndSelect("submission.answers", "answer")
                 .select(
@@ -41,8 +41,9 @@ export class SubmissionRepo implements ISubmissionRepo {
                     "score"
                 )
                 .where("submission.id = :submissionId", { submissionId })
-                .execute();
-        return parseInt(queryData[0].score);
+                .getRawOne();
+        if (!queryData) return 0;
+        return parseInt(queryData.score);
     }
 
     async getScores(
@@ -58,7 +59,7 @@ export class SubmissionRepo implements ISubmissionRepo {
                 .addSelect("submission.id", "id")
                 .where("submission.id in (:...ids)", { ids: submissionIds })
                 .groupBy("submission.id")
-                .execute();
+                .getRawMany();
         return queryData.map(({ id, score }) => ({
             id,
             score: parseInt(score),
