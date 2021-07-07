@@ -205,10 +205,7 @@ export class UserResolver {
     async myScore(@Ctx() context: TContext): Promise<UserScore> {
         try {
             const data = await this._userRepo.getScore(context.user.id);
-            return {
-                maxScore: data[0].maxScore || 0,
-                totalScore: data[0].totalScore || 0,
-            };
+            return data;
         } catch (error) {
             console.log(error);
             throw new Error("Database Error");
