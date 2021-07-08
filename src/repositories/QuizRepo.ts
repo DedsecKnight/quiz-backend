@@ -1,4 +1,3 @@
-import { AuthenticationError } from "apollo-server";
 import { inject, injectable } from "inversify";
 import { Quiz } from "../entity/Quiz";
 import { IAnswerRepo } from "../interfaces/IAnswerRepo";
@@ -35,10 +34,6 @@ export class QuizRepo implements IQuizRepo {
     async createQuiz(quizArg: IQuizArgs): Promise<Quiz> {
         // Destruct parameter
         const { userId, quizName, questions, difficulty, category } = quizArg;
-
-        // Fetch author
-        const authorObj = await this._userRepo.findById(userId);
-        if (!authorObj) throw new AuthenticationError("User does not exist");
 
         // Get difficulty object
         const diffObj = await this._difficultyRepo.getObjByType(difficulty);
