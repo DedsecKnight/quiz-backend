@@ -21,7 +21,6 @@ import { ICategoryRepo } from "../../interfaces/ICategoryRepo";
 import { ResourceNotFound } from "../../errors/ResourceNotFound";
 import { CountData } from "../../interfaces/ICountData";
 import { validateCreateQuizData } from "../../middlewares/validateQuizData";
-import { AuthenticationError } from "apollo-server";
 import { checkAuthorization } from "../../middlewares/auth";
 import { TContext } from "../../types/TContext";
 import { User } from "../../entity/User";
@@ -49,7 +48,6 @@ export class QuizResolver {
             const newQuiz = this._quizRepo.createQuiz(quizArg);
             return newQuiz;
         } catch (error) {
-            if (error instanceof AuthenticationError) throw error;
             console.log(error);
             throw new Error("Database Error");
         }
