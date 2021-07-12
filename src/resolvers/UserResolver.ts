@@ -5,6 +5,8 @@ import {
     Arg,
     Ctx,
     UseMiddleware,
+    Subscription,
+    Root,
 } from "type-graphql";
 import { User } from "../entity/User";
 import { injectable } from "inversify";
@@ -15,7 +17,7 @@ import { ISubmissionRepo } from "../interfaces/ISubmissionRepo";
 
 import getDecorators from "inversify-inject-decorators";
 import { container } from "../inversify.config";
-import { checkAuthorization } from "../middlewares/auth";
+import { checkAuthorization, checkAuthorizationFn } from "../middlewares/auth";
 import { TContext } from "../types/TContext";
 const { lazyInject } = getDecorators(container);
 import * as bcrypt from "bcrypt";
@@ -29,6 +31,7 @@ import {
     validateLoginInput,
     validateCredentialsInput,
 } from "../middlewares/validateAuthData";
+import { NEW_SUBMISSIONS } from "../subscriptions/events/eventKey";
 
 @injectable()
 @Resolver(User)
@@ -42,6 +45,31 @@ export class UserResolver {
         try {
             const users = await this._userRepo.getAll();
             return users;
+        } catch (error) {
+            console.log(error);
+            throw new Error("Database Error");
+        }
+    }
+
+    @Subscription(() => UserScore, {
+        topics: NEW_SUBMISSIONS,
+        filter: ({
+            payload,
+            context,
+        }: {
+            payload: {
+                id: string;
+            };
+            context: TContext;
+        }) => {
+            checkAuthorizationFn(context);
+            return context.user.id === parseInt(payload.id);
+        },
+    })
+    async newSubmission(@Root() { id }: { id: string }): Promise<UserScore> {
+        try {
+            const userScore = await this._userRepo.getScore(parseInt(id));
+            return userScore;
         } catch (error) {
             console.log(error);
             throw new Error("Database Error");

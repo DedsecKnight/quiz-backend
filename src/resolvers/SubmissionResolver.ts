@@ -7,9 +7,12 @@ import {
     ID,
     InputType,
     Int,
+    PubSub,
+    PubSubEngine,
     Query,
     Resolver,
     Root,
+    UseMiddleware,
 } from "type-graphql";
 import { Mutation } from "type-graphql";
 import { Submission } from "../entity/Submission";
@@ -23,6 +26,9 @@ import { Answer } from "../entity/Answer";
 import { TContext } from "../types/TContext";
 import { Quiz } from "../entity/Quiz";
 const { lazyInject } = getDecorators(container);
+
+import { checkAuthorization } from "../middlewares/auth";
+import { NEW_SUBMISSIONS } from "../subscriptions/events/eventKey";
 
 @InputType()
 class SubmitInput implements SubmissionArg {
@@ -41,14 +47,19 @@ class SubmitInput implements SubmissionArg {
 export class SubmissionResolver {
     @lazyInject(TYPES.ISubmissionRepo) private _submissionRepo: ISubmissionRepo;
 
+    @UseMiddleware(checkAuthorization)
     @Mutation(() => Submission)
     async submit(
-        @Arg("submitInput") submissionArg: SubmitInput
+        @Arg("submitInput") submissionArg: SubmitInput,
+        @PubSub() pubsub: PubSubEngine
     ): Promise<Submission> {
         try {
             const newSubmission = await this._submissionRepo.createSubmission(
                 submissionArg
             );
+            await pubsub.publish(NEW_SUBMISSIONS, {
+                id: submissionArg.userId,
+            });
             return newSubmission;
         } catch (error) {
             console.log(error);

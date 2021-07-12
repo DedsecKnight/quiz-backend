@@ -15,10 +15,7 @@ const checkIfUserExists = async (id: number): Promise<boolean> => {
     return !!userObj;
 };
 
-export const checkAuthorization: MiddlewareFn<TContext> = async (
-    { context },
-    next
-) => {
+export const checkAuthorizationFn = (context: TContext): boolean => {
     if (!context.headers.authorization)
         throw new AuthenticationError("Cannot find token");
 
@@ -32,7 +29,7 @@ export const checkAuthorization: MiddlewareFn<TContext> = async (
                     message: "User does not exist",
                 },
             });
-        return next();
+        return true;
     } catch (error) {
         if (!context.headers.refreshtoken || error instanceof UserInputError)
             throw error;
@@ -44,6 +41,14 @@ export const checkAuthorization: MiddlewareFn<TContext> = async (
                     message: "User does not exist",
                 },
             });
-        return next();
+        return true;
     }
+};
+
+export const checkAuthorization: MiddlewareFn<TContext> = async (
+    { context },
+    next
+) => {
+    checkAuthorizationFn(context);
+    return next();
 };

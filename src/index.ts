@@ -31,8 +31,15 @@ createConnection()
         const server = new ApolloServer({
             schema,
             playground: true,
-            context: ({ req }) =>
-                ({
+            context: ({ req, connection }) => {
+                if (connection) {
+                    return {
+                        headers: {
+                            ...connection.context,
+                        },
+                    };
+                }
+                return {
                     ...req,
                     userLoader: UserLoader(),
                     quizLoader: QuizLoader(),
@@ -42,7 +49,8 @@ createConnection()
                     submissionAnswersLoader: SubmissionAnswersLoader(),
                     questionAnswersLoader: QuestionAnswersLoader(),
                     submissionScoreLoader: SubmissionScoreLoader(),
-                } as TContext),
+                } as TContext;
+            },
         });
 
         const { url } = await server.listen(5000);
