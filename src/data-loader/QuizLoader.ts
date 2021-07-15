@@ -2,7 +2,7 @@ import * as DataLoader from "dataloader";
 import { Quiz } from "../entity/Quiz";
 import { IQuizRepo } from "../interfaces/IQuizRepo";
 import { container } from "../inversify.config";
-import { TYPES } from "../inversify.config";
+import { TYPES } from "../inversify.types";
 
 const quizBatch = async (keys: number[]): Promise<Quiz[]> => {
     const quizRepo = container.get<IQuizRepo>(TYPES.IQuizRepo);

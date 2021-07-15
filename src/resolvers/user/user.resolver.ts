@@ -8,7 +8,7 @@ import {
 } from "type-graphql";
 import { User } from "../../entity/User";
 import { injectable } from "inversify";
-import { TYPES } from "../../inversify.config";
+import { TYPES } from "../../inversify.types";
 import { IUserRepo, AuthResponse, UserScore } from "../../interfaces/IUserRepo";
 import { Submission } from "../../entity/Submission";
 import { ISubmissionRepo } from "../../interfaces/ISubmissionRepo";

@@ -2,7 +2,7 @@ import * as DataLoader from "dataloader";
 import { User } from "../entity/User";
 import { IUserRepo } from "../interfaces/IUserRepo";
 import { container } from "../inversify.config";
-import { TYPES } from "../inversify.config";
+import { TYPES } from "../inversify.types";
 
 const userBatch = async (keys: number[]): Promise<User[]> => {
     const userRepo = container.get<IUserRepo>(TYPES.IUserRepo);

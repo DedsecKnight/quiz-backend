@@ -4,7 +4,7 @@ import { Quiz } from "../entity/Quiz";
 import { ICategoryRepo } from "../interfaces/ICategoryRepo";
 import { IQuizRepo } from "../interfaces/IQuizRepo";
 import { container } from "../inversify.config";
-import { TYPES } from "../inversify.config";
+import { TYPES } from "../inversify.types";
 
 @injectable()
 export class CategoryRepo implements ICategoryRepo {
