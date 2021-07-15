@@ -1,7 +1,7 @@
 import { UserInputError } from "apollo-server";
 import { MiddlewareFn } from "type-graphql";
 import validator from "validator";
-import { QuizArgs } from "../resolvers/quiz/types";
+import { QuizArgs } from "../resolvers/quiz/quiz.types";
 
 const emptyInput = (data: string) => !data || validator.isEmpty(data);
 

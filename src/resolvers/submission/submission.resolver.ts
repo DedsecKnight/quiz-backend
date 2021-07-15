@@ -12,29 +12,18 @@ import {
     Root,
 } from "type-graphql";
 import { Mutation } from "type-graphql";
-import { Submission } from "../entity/Submission";
+import { Submission } from "../../entity/Submission";
 
-import { container } from "../inversify.config";
+import { container } from "../../inversify.config";
 import getDecorators from "inversify-inject-decorators";
-import { TYPES } from "../types/types";
-import { ISubmissionRepo, SubmissionArg } from "../interfaces/ISubmissionRepo";
-import { ResourceNotFound } from "../errors/ResourceNotFound";
-import { Answer } from "../entity/Answer";
-import { TContext } from "../types/TContext";
-import { Quiz } from "../entity/Quiz";
+import { TYPES } from "../../inversify.config";
+import { ISubmissionRepo } from "../../interfaces/ISubmissionRepo";
+import { ResourceNotFound } from "../../errors/ResourceNotFound";
+import { Answer } from "../../entity/Answer";
+import { TContext } from "../../types/TContext";
+import { Quiz } from "../../entity/Quiz";
 const { lazyInject } = getDecorators(container);
-
-@InputType()
-class SubmitInput implements SubmissionArg {
-    @Field(() => ID)
-    userId: number;
-
-    @Field(() => ID)
-    quizId: number;
-
-    @Field(() => [Int])
-    answers: number[];
-}
+import { SubmitInput } from "./submission.types";
 
 @injectable()
 @Resolver(Submission)

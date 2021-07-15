@@ -2,7 +2,7 @@ import * as DataLoader from "dataloader";
 import { Category } from "../entity/Category";
 import { ICategoryRepo } from "../interfaces/ICategoryRepo";
 import { container } from "../inversify.config";
-import { TYPES } from "../types/types";
+import { TYPES } from "../inversify.config";
 
 const categoryBatch = async (keys: number[]): Promise<Category[]> => {
     const categoryRepo = container.get<ICategoryRepo>(TYPES.ICategoryRepo);
