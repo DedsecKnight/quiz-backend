@@ -2,7 +2,7 @@ import { User } from "../entity/User";
 import { IUserRepo, UserScore } from "../interfaces/IUserRepo";
 import { inject, injectable } from "inversify";
 import { getManager } from "typeorm";
-import { TYPES } from "../types/types";
+import { TYPES } from "../inversify.config";
 import { ISubmissionRepo } from "../interfaces/ISubmissionRepo";
 
 @injectable()

@@ -2,7 +2,7 @@ import * as DataLoader from "dataloader";
 import { Difficulty } from "../entity/Difficulty";
 import { IDifficultyRepo } from "../interfaces/IDifficultyRepo";
 import { container } from "../inversify.config";
-import { TYPES } from "../types/types";
+import { TYPES } from "../inversify.config";
 
 const difficultyBatch = async (keys: number[]): Promise<Difficulty[]> => {
     const difficultyRepo = container.get<IDifficultyRepo>(

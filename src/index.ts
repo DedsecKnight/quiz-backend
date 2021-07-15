@@ -5,7 +5,7 @@ import { createConnection } from "typeorm";
 
 import { container } from "./inversify.config";
 import { IDifficultyRepo } from "./interfaces/IDifficultyRepo";
-import { TYPES } from "./types/types";
+import { TYPES } from "./inversify.config";
 
 import { ApolloServer } from "apollo-server";
 import { UserLoader } from "./data-loader/UserLoader";
