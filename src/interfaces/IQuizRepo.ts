@@ -66,4 +66,12 @@ export interface IQuizRepo {
 
     // Get count of all quizzes
     getAllQuizCount: () => Promise<CountData>;
+
+    // Check if a list of answers belong to a certain quiz
+    // answerIds: list of ID of answer objects
+    // quizId: ID of quiz
+    checkIfAnswersBelongToQuiz: (
+        answerIds: number[],
+        quizId: string
+    ) => Promise<boolean>;
 }

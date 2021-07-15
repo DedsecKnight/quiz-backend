@@ -7,4 +7,7 @@ export interface IAnswerRepo {
         isCorrect: boolean,
         questionId: number
     ) => Promise<Answer>;
+
+    // Map a list of AnswerIds to a list of QuizIds of quizzes to which the answer belongs
+    mapAnswerToQuiz: (answerIds: number[]) => Promise<number[]>;
 }
