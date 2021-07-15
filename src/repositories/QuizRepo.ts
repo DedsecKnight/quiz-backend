@@ -7,7 +7,7 @@ import { IDifficultyRepo } from "../interfaces/IDifficultyRepo";
 import { IQuestionRepo } from "../interfaces/IQuestionRepo";
 import { IQuizArgs, IQuizRepo } from "../interfaces/IQuizRepo";
 import { IUserRepo } from "../interfaces/IUserRepo";
-import { TYPES } from "../inversify.config";
+import { TYPES } from "../inversify.types";
 
 @injectable()
 export class QuizRepo implements IQuizRepo {

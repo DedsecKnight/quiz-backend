@@ -4,7 +4,7 @@ import { decodeRefreshToken, decodeToken } from "../jwt/jwt";
 import { TContext } from "../types/TContext";
 import { container } from "../inversify.config";
 import { IUserRepo } from "../interfaces/IUserRepo";
-import { TYPES } from "../inversify.config";
+import { TYPES } from "../inversify.types";
 
 const TOKEN_BEGIN_INDEX = 7;
 

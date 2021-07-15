@@ -11,7 +11,7 @@ import {
 } from "type-graphql";
 import { Quiz } from "../../entity/Quiz";
 import { IQuizRepo } from "../../interfaces/IQuizRepo";
-import { TYPES } from "../../inversify.config";
+import { TYPES } from "../../inversify.types";
 import { QuizArgs } from "./quiz.types";
 
 import getDecorators from "inversify-inject-decorators";

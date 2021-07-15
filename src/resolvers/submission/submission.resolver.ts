@@ -16,7 +16,7 @@ import { Submission } from "../../entity/Submission";
 
 import { container } from "../../inversify.config";
 import getDecorators from "inversify-inject-decorators";
-import { TYPES } from "../../inversify.config";
+import { TYPES } from "../../inversify.types";
 import { ISubmissionRepo } from "../../interfaces/ISubmissionRepo";
 import { ResourceNotFound } from "../../errors/ResourceNotFound";
 import { Answer } from "../../entity/Answer";

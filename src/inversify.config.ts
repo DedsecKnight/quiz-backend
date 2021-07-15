@@ -16,15 +16,7 @@ import { QuizRepo } from "./repositories/QuizRepo";
 import { SubmissionRepo } from "./repositories/SubmissionRepo";
 import { UserRepo } from "./repositories/UserRepo";
 
-export const TYPES = {
-    IDifficultyRepo: Symbol.for("IDifficultyRepo"),
-    ICategoryRepo: Symbol.for("ICategoryRepo"),
-    IQuestionRepo: Symbol.for("IQuestionRepo"),
-    IAnswerRepo: Symbol.for("IAnswerRepo"),
-    IUserRepo: Symbol.for("IUserRepo"),
-    IQuizRepo: Symbol.for("IQuizRepo"),
-    ISubmissionRepo: Symbol.for("ISubmissionRepo"),
-};
+import { TYPES } from "./inversify.types";
 
 const container = new Container();
 container.bind<IAnswerRepo>(TYPES.IAnswerRepo).to(AnswerRepo);

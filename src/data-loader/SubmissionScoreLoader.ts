@@ -1,7 +1,7 @@
 import * as DataLoader from "dataloader";
 import { ISubmissionRepo } from "../interfaces/ISubmissionRepo";
 import { container } from "../inversify.config";
-import { TYPES } from "../inversify.config";
+import { TYPES } from "../inversify.types";
 
 const scoreBatch = async (keys: number[]): Promise<number[]> => {
     const submissionRepo = container.get<ISubmissionRepo>(
