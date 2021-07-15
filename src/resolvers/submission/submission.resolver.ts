@@ -26,11 +26,14 @@ import { Quiz } from "../../entity/Quiz";
 const { lazyInject } = getDecorators(container);
 import { SubmitInput } from "./submission.types";
 import { checkAuthorization } from "../../middlewares/auth";
+import { IQuizRepo } from "../../interfaces/IQuizRepo";
+import { UserInputError } from "apollo-server";
 
 @injectable()
 @Resolver(Submission)
 export class SubmissionResolver {
     @lazyInject(TYPES.ISubmissionRepo) private _submissionRepo: ISubmissionRepo;
+    @lazyInject(TYPES.IQuizRepo) private _quizRepo: IQuizRepo;
 
     @UseMiddleware(checkAuthorization)
     @Mutation(() => Submission)
@@ -38,6 +41,23 @@ export class SubmissionResolver {
         @Ctx() context: TContext,
         @Arg("submitInput") submissionArg: SubmitInput
     ): Promise<Submission> {
+        const answersIsValid = await this._quizRepo
+            .checkIfAnswersBelongToQuiz(
+                submissionArg.answers,
+                submissionArg.quizId.toString()
+            )
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
+        if (!answersIsValid) {
+            throw new UserInputError("Invalid submission", {
+                validationErrors: {
+                    message: "At least 1 answer does not match quiz",
+                },
+            });
+        }
+
         submissionArg.userId = context.user.id;
         try {
             const newSubmission = await this._submissionRepo.createSubmission(

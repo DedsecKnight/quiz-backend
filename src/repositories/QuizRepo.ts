@@ -145,4 +145,12 @@ export class QuizRepo implements IQuizRepo {
             return Promise.reject(error);
         }
     }
+
+    async checkIfAnswersBelongToQuiz(
+        answerIds: number[],
+        quizId: string
+    ): Promise<boolean> {
+        const quizList = await this._answerRepo.mapAnswerToQuiz(answerIds);
+        return quizList.filter((qId) => qId !== parseInt(quizId)).length === 0;
+    }
 }

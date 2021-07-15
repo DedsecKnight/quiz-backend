@@ -11,4 +11,15 @@ export class AnswerRepo implements IAnswerRepo {
     ): Promise<Answer> {
         return Answer.create({ answer, isCorrect, questionId }).save();
     }
+
+    async mapAnswerToQuiz(answerIds: number[]): Promise<number[]> {
+        const data: Array<{ quiz_id: number }> =
+            await Answer.createQueryBuilder("answer")
+                .innerJoin("answer.question", "question")
+                .innerJoin("question.quiz", "quiz")
+                .where("answer.id in (:...ids)", { ids: answerIds })
+                .select("quiz.id")
+                .getRawMany();
+        return data.map((obj) => obj.quiz_id);
+    }
 }
