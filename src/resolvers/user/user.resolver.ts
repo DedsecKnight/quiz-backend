@@ -6,29 +6,29 @@ import {
     Ctx,
     UseMiddleware,
 } from "type-graphql";
-import { User } from "../entity/User";
+import { User } from "../../entity/User";
 import { injectable } from "inversify";
-import { TYPES } from "../types/types";
-import { IUserRepo, AuthResponse, UserScore } from "../interfaces/IUserRepo";
-import { Submission } from "../entity/Submission";
-import { ISubmissionRepo } from "../interfaces/ISubmissionRepo";
+import { TYPES } from "../../inversify.config";
+import { IUserRepo, AuthResponse, UserScore } from "../../interfaces/IUserRepo";
+import { Submission } from "../../entity/Submission";
+import { ISubmissionRepo } from "../../interfaces/ISubmissionRepo";
 
 import getDecorators from "inversify-inject-decorators";
-import { container } from "../inversify.config";
-import { checkAuthorization } from "../middlewares/auth";
-import { TContext } from "../types/TContext";
+import { container } from "../../inversify.config";
+import { checkAuthorization } from "../../middlewares/auth";
+import { TContext } from "../../types/TContext";
 const { lazyInject } = getDecorators(container);
 import * as bcrypt from "bcrypt";
 
 import { AuthenticationError, UserInputError } from "apollo-server-errors";
-import { Quiz } from "../entity/Quiz";
-import { IQuizRepo } from "../interfaces/IQuizRepo";
-import { generateRefreshToken, generateToken } from "../jwt/jwt";
-import { CountData } from "../interfaces/ICountData";
+import { Quiz } from "../../entity/Quiz";
+import { IQuizRepo } from "../../interfaces/IQuizRepo";
+import { generateRefreshToken, generateToken } from "../../jwt/jwt";
+import { CountData } from "../../interfaces/ICountData";
 import {
     validateLoginInput,
     validateCredentialsInput,
-} from "../middlewares/validateAuthData";
+} from "../../middlewares/validateAuthData";
 
 @injectable()
 @Resolver(User)

@@ -1,8 +1,8 @@
 import { Ctx, FieldResolver, Resolver, Root } from "type-graphql";
-import { Question } from "../entity/Question";
+import { Question } from "../../entity/Question";
 
-import { Answer } from "../entity/Answer";
-import { TContext } from "../types/TContext";
+import { Answer } from "../../entity/Answer";
+import { TContext } from "../../types/TContext";
 
 @Resolver(Question)
 export class QuestionResolver {
