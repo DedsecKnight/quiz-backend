@@ -10,6 +10,7 @@ import {
     Query,
     Resolver,
     Root,
+    UseMiddleware,
 } from "type-graphql";
 import { Mutation } from "type-graphql";
 import { Submission } from "../../entity/Submission";
@@ -24,16 +25,20 @@ import { TContext } from "../../types/TContext";
 import { Quiz } from "../../entity/Quiz";
 const { lazyInject } = getDecorators(container);
 import { SubmitInput } from "./submission.types";
+import { checkAuthorization } from "../../middlewares/auth";
 
 @injectable()
 @Resolver(Submission)
 export class SubmissionResolver {
     @lazyInject(TYPES.ISubmissionRepo) private _submissionRepo: ISubmissionRepo;
 
+    @UseMiddleware(checkAuthorization)
     @Mutation(() => Submission)
     async submit(
+        @Ctx() context: TContext,
         @Arg("submitInput") submissionArg: SubmitInput
     ): Promise<Submission> {
+        submissionArg.userId = context.user.id;
         try {
             const newSubmission = await this._submissionRepo.createSubmission(
                 submissionArg
