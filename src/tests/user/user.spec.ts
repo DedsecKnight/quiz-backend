@@ -299,12 +299,49 @@ describe("User Query", () => {
 });
 
 describe("Update Profile", () => {
-    test("Change one field", async () => {});
-    test("Change multiple fields", async () => {});
-    test("Change multiple fields", async () => {});
-    test("Invalid email format", async () => {});
-    test("Password too short", async () => {});
-    test("Multiple validations failed", async () => {});
+    test("Update all fields", async () => {
+        await server.executeOperation({
+            query: gql`
+                mutation UpdateUserProfile(
+                    $name: String!
+                    $email: String!
+                    $password: String!
+                ) {
+                    updateProfile(
+                        name: $name
+                        email: $email
+                        password: $password
+                    ) {
+                        email
+                    }
+                }
+            `,
+            variables: {
+                name: "NewTest",
+                email: "test123@test.com",
+                password: "newtest1234",
+            },
+        });
+
+        const data = await server.executeOperation({
+            query: gql`
+                mutation Login($email: String!, $password: String!) {
+                    login(email: $email, password: $password) {
+                        token
+                        refreshToken
+                    }
+                }
+            `,
+            variables: {
+                email: "test123@test.com",
+                password: "newtest1234",
+            },
+        });
+
+        const { login } = data.data;
+        expect(login.token).toBeTruthy();
+        expect(login.refreshToken).toBeTruthy();
+    });
 });
 
 afterAll(async () => {
