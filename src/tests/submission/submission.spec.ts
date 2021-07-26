@@ -63,6 +63,16 @@ describe("Submission Mutation", () => {
         const { submit } = data.data;
         expect(submit.score).toBe(100);
     });
+
+    test("Answer does not match quiz", async () => {
+        await createMockQuiz(server);
+        const data = await createMockSubmission(server, [7]);
+        expect(data.data).toBe(null);
+        expect(data.errors[0].message).toBe("Invalid submission");
+        expect(data.errors[0].extensions.validationErrors).toEqual({
+            message: "At least 1 answer does not match quiz",
+        });
+    });
 });
 
 describe("Submission Queries", () => {
