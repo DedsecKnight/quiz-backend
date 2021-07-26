@@ -8,15 +8,7 @@ import { IDifficultyRepo } from "./interfaces/IDifficultyRepo";
 import { TYPES } from "./inversify.types";
 
 import { ApolloServer } from "apollo-server";
-import { UserLoader } from "./data-loader/UserLoader";
-import { TContext } from "./types/TContext";
-import { DifficultyLoader } from "./data-loader/DifficultyLoader";
-import { CategoryLoader } from "./data-loader/CategoryLoader";
-import { QuizQuestionsLoader } from "./data-loader/QuizQuestionsLoader";
-import { SubmissionAnswersLoader } from "./data-loader/SubmissionAnswersLoader";
-import { QuizLoader } from "./data-loader/QuizLoader";
-import { QuestionAnswersLoader } from "./data-loader/QuestionAnswersLoader";
-import { SubmissionScoreLoader } from "./data-loader/SubmissionScoreLoader";
+import { ServerContext } from "./server.config";
 
 createConnection()
     .then(async () => {
@@ -31,18 +23,7 @@ createConnection()
         const server = new ApolloServer({
             schema,
             playground: true,
-            context: ({ req }) =>
-                ({
-                    ...req,
-                    userLoader: UserLoader(),
-                    quizLoader: QuizLoader(),
-                    difficultyLoader: DifficultyLoader(),
-                    categoryLoader: CategoryLoader(),
-                    quizQuestionsLoader: QuizQuestionsLoader(),
-                    submissionAnswersLoader: SubmissionAnswersLoader(),
-                    questionAnswersLoader: QuestionAnswersLoader(),
-                    submissionScoreLoader: SubmissionScoreLoader(),
-                } as TContext),
+            context: ({ req }) => ServerContext(req),
         });
 
         const { url } = await server.listen(5000);
