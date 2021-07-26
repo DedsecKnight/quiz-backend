@@ -136,7 +136,7 @@ export class UserResolver {
         if (existingUser)
             throw new UserInputError("Create user failed", {
                 validationErrors: {
-                    message: "User already exist",
+                    message: "User already exists",
                 },
             });
 
