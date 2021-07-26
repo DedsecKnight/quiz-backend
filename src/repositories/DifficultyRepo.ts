@@ -9,14 +9,17 @@ import { TYPES } from "../inversify.types";
 @injectable()
 export class DifficultyRepo implements IDifficultyRepo {
     async initialize(): Promise<void> {
-        const difficultyList = await Difficulty.find();
-        if (!difficultyList.length) {
-            ["Easy", "Normal", "Hard"].forEach(async (type) => {
-                const newDiff = Difficulty.create({
-                    type,
-                });
-                await newDiff.save();
+        const requiredDifficulties = ["Easy", "Normal", "Hard"];
+
+        for (let type of requiredDifficulties) {
+            const diffObj = await Difficulty.findOne({
+                type,
             });
+            if (!diffObj) {
+                await Difficulty.create({
+                    type,
+                }).save();
+            }
         }
     }
 

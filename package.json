@@ -5,11 +5,14 @@
    "devDependencies": {
       "@types/bcrypt": "^5.0.0",
       "@types/express": "^4.17.12",
+      "@types/jest": "^26.0.24",
       "@types/node": "^8.0.29",
       "@types/validator": "^13.6.0",
+      "jest": "^27.0.6",
       "nodemon": "^2.0.7",
+      "ts-jest": "^27.0.4",
       "ts-node": "3.3.0",
-      "typescript": "3.3.3333"
+      "typescript": "^4.3.5"
    },
    "dependencies": {
       "@types/cors": "^2.8.10",
@@ -33,7 +36,8 @@
    },
    "scripts": {
       "start": "ts-node src/index.ts",
-      "dev": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node src/index.ts\"",
-      "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js"
+      "dev": "nodemon --config nodemon.json",
+      "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
+      "test": "jest"
    }
 }

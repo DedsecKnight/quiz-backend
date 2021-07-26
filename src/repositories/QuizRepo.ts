@@ -50,7 +50,7 @@ export class QuizRepo implements IQuizRepo {
         );
 
         // Populate quiz with questions and answers
-        questions.forEach(async ({ question, answers }) => {
+        for (let { question, answers } of questions) {
             // Create a question
             const newQuestion = await this._questionRepo.initializeObj(
                 question,
@@ -58,14 +58,14 @@ export class QuizRepo implements IQuizRepo {
             );
 
             // Create answers for each answer
-            answers.forEach(async ({ answer, isCorrect }) => {
+            for (let { answer, isCorrect } of answers) {
                 await this._answerRepo.initializeObj(
                     answer,
                     isCorrect,
                     newQuestion.id
                 );
-            });
-        });
+            }
+        }
 
         return newQuiz;
     }
