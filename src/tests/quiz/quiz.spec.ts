@@ -5,7 +5,7 @@ import { createMockConnection } from "../mock/MockConnection";
 import { QuizResolver } from "../../resolvers/quiz/quiz.resolver";
 import { UserResolver } from "../../resolvers/user/user.resolver";
 import { ServerContext } from "../../server.config";
-import { createDummyUser, createMockQuiz } from "../mock/CreateMockObj";
+import { createMockUser, createMockQuiz } from "../mock/CreateMockObj";
 import { generateRefreshToken, generateToken } from "../../jwt/jwt";
 import { container } from "../../inversify.config";
 import { IDifficultyRepo } from "../../interfaces/IDifficultyRepo";
@@ -22,7 +22,7 @@ beforeAll(async () => {
         resolvers: [QuizResolver, UserResolver, QuestionResolver],
     });
 
-    await createDummyUser();
+    await createMockUser();
 
     let token = generateToken({
         id: 1,

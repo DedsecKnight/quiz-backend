@@ -11,7 +11,7 @@ import { SubmissionResolver } from "../../resolvers/submission/submission.resolv
 import { UserResolver } from "../../resolvers/user/user.resolver";
 import { ServerContext } from "../../server.config";
 import {
-    createDummyUser,
+    createMockUser,
     createMockQuiz,
     createMockSubmission,
 } from "../mock/CreateMockObj";
@@ -32,7 +32,7 @@ beforeAll(async () => {
         ],
     });
 
-    await createDummyUser();
+    await createMockUser();
 
     let token = generateToken({
         id: 1,

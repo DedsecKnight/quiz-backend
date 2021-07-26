@@ -4,7 +4,7 @@ import { IUserRepo } from "../../interfaces/IUserRepo";
 import { container } from "../../inversify.config";
 import { TYPES } from "../../inversify.types";
 
-export const createDummyUser = async () => {
+export const createMockUser = async () => {
     const userRepo = container.get<IUserRepo>(TYPES.IUserRepo);
     const hashedPassword = await bcrypt.hash("test1234", 10).catch((err) => {
         console.log("Hashing error");

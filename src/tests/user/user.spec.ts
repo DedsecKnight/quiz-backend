@@ -4,7 +4,7 @@ import { Connection } from "typeorm";
 import { createMockConnection } from "../mock/MockConnection";
 import { UserResolver } from "../../resolvers/user/user.resolver";
 import { ServerContext } from "../../server.config";
-import { createDummyUser } from "../mock/CreateMockObj";
+import { createMockUser } from "../mock/CreateMockObj";
 import { generateRefreshToken, generateToken } from "../../jwt/jwt";
 
 let server: ApolloServer;
@@ -17,7 +17,7 @@ beforeAll(async () => {
         resolvers: [UserResolver],
     });
 
-    await createDummyUser();
+    await createMockUser();
 
     let token = generateToken({
         id: 1,
