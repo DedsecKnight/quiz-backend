@@ -69,8 +69,13 @@ export class QuizRepo implements IQuizRepo {
 
         return newQuiz;
     }
-    async findAll(): Promise<Quiz[]> {
-        return Quiz.find();
+    async findAll(searchQuery: string): Promise<Quiz[]> {
+        if (searchQuery === "") return Quiz.find();
+        return Quiz.createQueryBuilder("quiz")
+            .where(`LOWER(quiz.quizName) LIKE :query`, {
+                query: `%${searchQuery.toLowerCase()}%`,
+            })
+            .getMany();
     }
 
     async findById(id: number): Promise<Quiz> {
@@ -118,9 +123,18 @@ export class QuizRepo implements IQuizRepo {
 
     async findWithOffsetAndLimit(
         offset: number,
-        limit: number
+        limit: number,
+        searchQuery: string
     ): Promise<Quiz[]> {
+        if (searchQuery === "")
+            return Quiz.createQueryBuilder("quiz")
+                .skip(offset)
+                .take(limit)
+                .getMany();
         return Quiz.createQueryBuilder("quiz")
+            .where(`LOWER(quiz.quizName) LIKE :query`, {
+                query: `%${searchQuery.toLowerCase()}%`,
+            })
             .skip(offset)
             .take(limit)
             .getMany();
@@ -137,9 +151,16 @@ export class QuizRepo implements IQuizRepo {
         }
     }
 
-    async getAllQuizCount(): Promise<CountData> {
+    async getAllQuizCount(searchQuery: string): Promise<CountData> {
         try {
-            const count = await Quiz.createQueryBuilder("quiz").getCount();
+            const count =
+                searchQuery === ""
+                    ? await Quiz.createQueryBuilder("quiz").getCount()
+                    : await Quiz.createQueryBuilder("quiz")
+                          .where(`LOWER(quiz.quizName) LIKE :query`, {
+                              query: `%${searchQuery.toLowerCase()}%`,
+                          })
+                          .getCount();
             return Promise.resolve({ count });
         } catch (error) {
             return Promise.reject(error);

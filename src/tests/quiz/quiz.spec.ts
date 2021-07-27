@@ -314,14 +314,14 @@ describe("Quiz Queries", () => {
         const data = await server.executeOperation({
             query: gql`
                 query GetQuizCount {
-                    countAllQuizzes {
+                    countQuizzes {
                         count
                     }
                 }
             `,
         });
-        const { countAllQuizzes } = data.data;
-        expect(countAllQuizzes).toEqual({
+        const { countQuizzes } = data.data;
+        expect(countQuizzes).toEqual({
             count: 1,
         });
     });
