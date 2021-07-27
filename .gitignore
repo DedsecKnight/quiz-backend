@@ -5,3 +5,4 @@ build/
 tmp/
 temp/
 ormconfig.json
+src/jwt/secret.ts
