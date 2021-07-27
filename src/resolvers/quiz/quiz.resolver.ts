@@ -27,6 +27,7 @@ import { User } from "../../entity/User";
 import { Difficulty } from "../../entity/Difficulty";
 import { Category } from "../../entity/Category";
 import { Question } from "../../entity/Question";
+import { UserInputError } from "apollo-server";
 const { lazyInject } = getDecorators(container);
 
 @Resolver(Quiz)
@@ -89,25 +90,40 @@ export class QuizResolver {
         return quiz;
     }
 
-    @Query(() => Quiz)
-    async quizByName(@Arg("name") name: string): Promise<Quiz> {
-        const quiz = await this._quizRepo.findByName(name).catch((error) => {
-            console.log(error);
-            throw new Error("Database Error");
-        });
-        if (!quiz) throw new ResourceNotFound("Quiz does not exist");
-        return quiz;
-    }
-
     @Query(() => [Quiz])
-    async quizzes(): Promise<Quiz[]> {
-        try {
-            const quizzes = await this._quizRepo.findAll();
+    async quizzes(
+        @Arg("query", { nullable: true }) searchQuery: string | undefined,
+        @Arg("limit", { nullable: true }) limit: number | undefined,
+        @Arg("offset", { nullable: true }) offset: number | undefined
+    ): Promise<Quiz[]> {
+        // If both limit and offset are undefined, then fetch all quizzes
+        if (limit === undefined && offset === undefined) {
+            const quizzes = await this._quizRepo
+                .findAll(searchQuery || "")
+                .catch((error) => {
+                    console.log(error);
+                    throw new Error("Database Error");
+                });
             return quizzes;
-        } catch (error) {
-            console.log(error);
-            throw new Error("Database Error");
         }
+
+        // If either limit or offset are undefined, throw an Error
+        if (limit === undefined || offset === undefined)
+            throw new UserInputError("Fetch quizzes error", {
+                validationErros: {
+                    message:
+                        "Limit and offset has to be either both included or both null",
+                },
+            });
+
+        // Fetch quizzes with offset and limit
+        const quizzes = await this._quizRepo
+            .findWithOffsetAndLimit(offset, limit, searchQuery || "")
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
+        return quizzes;
     }
 
     @Query(() => [Quiz])
@@ -121,27 +137,14 @@ export class QuizResolver {
         }
     }
 
-    @Query(() => [Quiz])
-    async quizzesLimit(
-        @Arg("offset") offset: number,
-        @Arg("limit") limit: number
-    ): Promise<Quiz[]> {
-        try {
-            const quizzes = await this._quizRepo.findWithOffsetAndLimit(
-                offset,
-                limit
-            );
-            return quizzes;
-        } catch (error) {
-            console.log(error);
-            throw new Error("Database Error");
-        }
-    }
-
     @Query(() => CountData)
-    async countAllQuizzes(): Promise<CountData> {
+    async countQuizzes(
+        @Arg("query", { nullable: true }) searchQuery: string | undefined
+    ): Promise<CountData> {
         try {
-            const data = await this._quizRepo.getAllQuizCount();
+            const data = await this._quizRepo.getAllQuizCount(
+                searchQuery || ""
+            );
             return data;
         } catch (error) {
             console.log(error);

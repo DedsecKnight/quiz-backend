@@ -314,14 +314,14 @@ describe("Quiz Queries", () => {
         const data = await server.executeOperation({
             query: gql`
                 query GetQuizCount {
-                    countAllQuizzes {
+                    countQuizzes {
                         count
                     }
                 }
             `,
         });
-        const { countAllQuizzes } = data.data;
-        expect(countAllQuizzes).toEqual({
+        const { countQuizzes } = data.data;
+        expect(countQuizzes).toEqual({
             count: 1,
         });
     });
@@ -348,7 +348,7 @@ describe("Quiz Queries", () => {
         const data = await server.executeOperation({
             query: gql`
                 query QuizByName($name: String!) {
-                    quizByName(name: $name) {
+                    quizzes(query: $name) {
                         quizName
                         author {
                             name
@@ -360,9 +360,10 @@ describe("Quiz Queries", () => {
                 name: "New Quiz",
             },
         });
-        const { quizByName } = data.data;
-        expect(quizByName.quizName).toBe("New Quiz");
-        expect(quizByName.author.name).toBe("Test123");
+        const { quizzes } = data.data;
+        expect(quizzes.length).toBe(1);
+        expect(quizzes[0].quizName).toBe("New Quiz");
+        expect(quizzes[0].author.name).toBe("Test123");
     });
 
     test("Fetch quiz by ID", async () => {
