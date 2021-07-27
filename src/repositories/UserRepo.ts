@@ -47,15 +47,10 @@ export class UserRepo implements IUserRepo {
                         .groupBy("T.quizId");
                 }, "T2")
                 .getRawOne();
-        if (!queryData)
-            return {
-                maxScore: 0,
-                totalScore: 0,
-            };
 
         return {
-            maxScore: parseInt(queryData.maxScore),
-            totalScore: parseInt(queryData.totalScore),
+            maxScore: parseInt(queryData.maxScore) || 0,
+            totalScore: parseInt(queryData.totalScore) || 0,
         };
     }
 

@@ -1,11 +1,11 @@
 {
    "type": "mysql",
-   "host": "localhost",
+   "host": "db",
    "port": 3306,
    "username": "root",
    "password": "abc12345",
    "database": "quiz-backend",
-   "synchronize": false,
+   "synchronize": true,
    "logging": true,
    "entities": [
       "src/entity/**/*.ts"

@@ -38,6 +38,6 @@
       "start": "ts-node src/index.ts",
       "dev": "nodemon --config nodemon.json",
       "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
-      "test": "jest"
+      "test": "jest -i"
    }
 }
