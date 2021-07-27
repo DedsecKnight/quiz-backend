@@ -90,16 +90,6 @@ export class QuizResolver {
         return quiz;
     }
 
-    @Query(() => Quiz)
-    async quizByName(@Arg("name") name: string): Promise<Quiz> {
-        const quiz = await this._quizRepo.findByName(name).catch((error) => {
-            console.log(error);
-            throw new Error("Database Error");
-        });
-        if (!quiz) throw new ResourceNotFound("Quiz does not exist");
-        return quiz;
-    }
-
     @Query(() => [Quiz])
     async quizzes(
         @Arg("query", { nullable: true }) searchQuery: string | undefined,
@@ -140,24 +130,6 @@ export class QuizResolver {
     async quizzesByAuthor(@Arg("userId") id: number): Promise<Quiz[]> {
         try {
             const quizzes = await this._quizRepo.findByAuthor(id);
-            return quizzes;
-        } catch (error) {
-            console.log(error);
-            throw new Error("Database Error");
-        }
-    }
-
-    @Query(() => [Quiz])
-    async quizzesLimit(
-        @Arg("offset") offset: number,
-        @Arg("limit") limit: number
-    ): Promise<Quiz[]> {
-        try {
-            const quizzes = await this._quizRepo.findWithOffsetAndLimit(
-                offset,
-                limit,
-                ""
-            );
             return quizzes;
         } catch (error) {
             console.log(error);
