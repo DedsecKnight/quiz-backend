@@ -9,8 +9,10 @@ before_install:
     - docker network create test-network
     - docker build -t dedsecknight/backend-test -f Dockerfile.dev .
 
-script:
+before_script:
     - docker run --name db --net test-network -e MYSQL_ROOT_PASSWORD=abc12345 -e MYSQL_DATABASE=quiz-backend-test -d mysql --default-authentication-plugin=mysql_native_password
+
+script:
     - docker run --name backend-test --net test-network dedsecknight/backend-test npm run test
 
 after_script:
