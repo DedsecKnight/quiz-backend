@@ -110,7 +110,7 @@ export class QuizResolver {
         // If either limit or offset are undefined, throw an Error
         if (limit === undefined || offset === undefined)
             throw new UserInputError("Fetch quizzes error", {
-                validationErros: {
+                validationErrors: {
                     message:
                         "Limit and offset has to be either both included or both null",
                 },
