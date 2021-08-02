@@ -21,4 +21,18 @@ export class QuestionResolver {
             throw new Error("Database Error");
         }
     }
+
+    @FieldResolver(() => Answer)
+    async correctAnswer(
+        @Ctx() context: TContext,
+        @Root() question: Question
+    ): Promise<Answer> {
+        const correctAnswer = await context.questionCorrectAnswerLoader
+            .load(question.id)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
+        return correctAnswer;
+    }
 }

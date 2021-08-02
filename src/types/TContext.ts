@@ -3,6 +3,7 @@ import { IncomingHttpHeaders } from "http2";
 import { CategoryLoader } from "../data-loader/CategoryLoader";
 import { DifficultyLoader } from "../data-loader/DifficultyLoader";
 import { QuestionAnswersLoader } from "../data-loader/QuestionAnswersLoader";
+import { QuestionCorrectAnswerLoader } from "../data-loader/QuestionCorrectAnswer";
 import { QuizLoader } from "../data-loader/QuizLoader";
 import { QuizQuestionsLoader } from "../data-loader/QuizQuestionsLoader";
 import { SubmissionAnswersLoader } from "../data-loader/SubmissionAnswersLoader";
@@ -29,4 +30,5 @@ export interface TContext extends Request {
     quizQuestionsLoader: ReturnType<typeof QuizQuestionsLoader>;
     submissionAnswersLoader: ReturnType<typeof SubmissionAnswersLoader>;
     submissionScoreLoader: ReturnType<typeof SubmissionScoreLoader>;
+    questionCorrectAnswerLoader: ReturnType<typeof QuestionCorrectAnswerLoader>;
 }
