@@ -14,4 +14,9 @@ export interface IQuestionRepo {
 
     // Get questions with answers eagerly loaded based on given id list
     findByIdsWithAnswers: (ids: number[]) => Promise<Question[]>;
+
+    // Bulk insert a list of questions objects
+    initializeObjs: (
+        questions: Array<{ question: string; quizId: number }>
+    ) => Promise<number[]>;
 }

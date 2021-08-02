@@ -49,17 +49,30 @@ export class QuizRepo implements IQuizRepo {
             catObj.id
         );
 
-        // Populate quiz with questions and answers
-        for (let { question, answers } of questions) {
-            // Create a question
-            const newQuestion = await this._questionRepo.initializeObj(
+        // Bulk insert all questions
+        const questionIds = await this._questionRepo.initializeObjs(
+            questions.map(({ question }) => ({
                 question,
-                newQuiz.id
-            );
+                quizId: newQuiz.id,
+            }))
+        );
 
-            // Add answers into question
-            await this._answerRepo.initializeObjs(answers, newQuestion.id);
+        // Merge all answers into 1 array
+        const allAnswers: Array<{
+            answer: string;
+            isCorrect: boolean;
+            questionId: number;
+        }> = [];
+
+        for (let i = 0; i < questionIds.length; i++) {
+            const { answers } = questions[i];
+            for (let answer of answers) {
+                allAnswers.push({ ...answer, questionId: questionIds[i] });
+            }
         }
+
+        // Bulk insert all answers
+        await this._answerRepo.initializeObjs(allAnswers);
 
         return newQuiz;
     }

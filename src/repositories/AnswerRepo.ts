@@ -25,14 +25,17 @@ export class AnswerRepo implements IAnswerRepo {
     }
 
     async initializeObjs(
-        answers: Array<{ answer: string; isCorrect: boolean }>,
-        questionId: number
+        answers: Array<{
+            answer: string;
+            isCorrect: boolean;
+            questionId: number;
+        }>
     ): Promise<number[]> {
         const data = await getConnection()
             .createQueryBuilder()
             .insert()
             .into(Answer)
-            .values(answers.map((answer) => ({ ...answer, questionId })))
+            .values(answers)
             .execute();
 
         return data.generatedMaps.map((obj) => parseInt(obj.id));

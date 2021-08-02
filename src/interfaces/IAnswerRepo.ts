@@ -13,7 +13,10 @@ export interface IAnswerRepo {
 
     // Bulk insert a list of answer objects
     initializeObjs: (
-        answers: Array<{ answer: string; isCorrect: boolean }>,
-        questionId: number
+        answers: Array<{
+            answer: string;
+            isCorrect: boolean;
+            questionId: number;
+        }>
     ) => Promise<number[]>;
 }
