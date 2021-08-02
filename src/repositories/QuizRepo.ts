@@ -57,14 +57,8 @@ export class QuizRepo implements IQuizRepo {
                 newQuiz.id
             );
 
-            // Create answers for each answer
-            for (let { answer, isCorrect } of answers) {
-                await this._answerRepo.initializeObj(
-                    answer,
-                    isCorrect,
-                    newQuestion.id
-                );
-            }
+            // Add answers into question
+            await this._answerRepo.initializeObjs(answers, newQuestion.id);
         }
 
         return newQuiz;
