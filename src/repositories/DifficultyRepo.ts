@@ -1,4 +1,5 @@
 import { injectable } from "inversify";
+import { getConnection } from "typeorm";
 import { Difficulty } from "../entity/Difficulty";
 import { Quiz } from "../entity/Quiz";
 import { IDifficultyRepo } from "../interfaces/IDifficultyRepo";
@@ -10,16 +11,21 @@ import { TYPES } from "../inversify.types";
 export class DifficultyRepo implements IDifficultyRepo {
     async initialize(): Promise<void> {
         const requiredDifficulties = ["Easy", "Normal", "Hard"];
+        const diffCount = await Difficulty.createQueryBuilder("difficulty")
+            .where("type in (:...types)", { types: requiredDifficulties })
+            .getCount();
 
-        for (let type of requiredDifficulties) {
-            const diffObj = await Difficulty.findOne({
-                type,
-            });
-            if (!diffObj) {
-                await Difficulty.create({
-                    type,
-                }).save();
-            }
+        if (diffCount != 3) {
+            await getConnection()
+                .createQueryBuilder()
+                .insert()
+                .into(Difficulty)
+                .values(
+                    requiredDifficulties.map((difficulty) => ({
+                        type: difficulty,
+                    }))
+                )
+                .execute();
         }
     }
 

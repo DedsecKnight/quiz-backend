@@ -7,7 +7,6 @@ import {
     UseMiddleware,
 } from "type-graphql";
 import { User } from "../../entity/User";
-import { injectable } from "inversify";
 import { TYPES } from "../../inversify.types";
 import { IUserRepo, AuthResponse, UserScore } from "../../interfaces/IUserRepo";
 import { Submission } from "../../entity/Submission";
@@ -30,7 +29,6 @@ import {
     validateCredentialsInput,
 } from "../../middlewares/validateAuthData";
 
-@injectable()
 @Resolver(User)
 export class UserResolver {
     @lazyInject(TYPES.IUserRepo) private _userRepo: IUserRepo;

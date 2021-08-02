@@ -1,11 +1,7 @@
-import { injectable } from "inversify";
 import {
     Arg,
     Ctx,
-    Field,
     FieldResolver,
-    ID,
-    InputType,
     Int,
     Query,
     Resolver,
@@ -29,7 +25,6 @@ import { checkAuthorization } from "../../middlewares/auth";
 import { IQuizRepo } from "../../interfaces/IQuizRepo";
 import { UserInputError } from "apollo-server";
 
-@injectable()
 @Resolver(Submission)
 export class SubmissionResolver {
     @lazyInject(TYPES.ISubmissionRepo) private _submissionRepo: ISubmissionRepo;

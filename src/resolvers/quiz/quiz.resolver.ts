@@ -1,4 +1,3 @@
-import { injectable } from "inversify";
 import {
     Arg,
     Mutation,
@@ -31,7 +30,6 @@ import { UserInputError } from "apollo-server";
 const { lazyInject } = getDecorators(container);
 
 @Resolver(Quiz)
-@injectable()
 export class QuizResolver {
     @lazyInject(TYPES.IQuizRepo) private _quizRepo: IQuizRepo;
     @lazyInject(TYPES.IDifficultyRepo) private _difficultyRepo: IDifficultyRepo;
