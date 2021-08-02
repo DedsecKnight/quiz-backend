@@ -326,6 +326,29 @@ describe("Quiz Queries", () => {
         });
     });
 
+    test("Fetch correct answer of questions in a quiz", async () => {
+        const data = await server.executeOperation({
+            query: gql`
+                query QuizByUser {
+                    quizzes {
+                        questions {
+                            correctAnswer {
+                                answer
+                                isCorrect
+                            }
+                        }
+                    }
+                }
+            `,
+        });
+
+        const { quizzes } = data.data;
+        expect(quizzes.length).toBe(1);
+        quizzes[0].questions.forEach((question: any) => {
+            expect(question.correctAnswer.isCorrect).toBe(true);
+        });
+    });
+
     test("Fetch quizzes by author", async () => {
         const data = await server.executeOperation({
             query: gql`
