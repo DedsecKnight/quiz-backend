@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { getConnection, getManager } from "typeorm";
+import { getConnection } from "typeorm";
 import { Answer } from "../entity/Answer";
 import { IAnswerRepo } from "../interfaces/IAnswerRepo";
 

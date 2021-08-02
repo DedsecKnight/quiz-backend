@@ -6,7 +6,6 @@ import { CountData } from "../interfaces/ICountData";
 import { IDifficultyRepo } from "../interfaces/IDifficultyRepo";
 import { IQuestionRepo } from "../interfaces/IQuestionRepo";
 import { IQuizArgs, IQuizRepo } from "../interfaces/IQuizRepo";
-import { IUserRepo } from "../interfaces/IUserRepo";
 import { TYPES } from "../inversify.types";
 
 @injectable()
@@ -15,7 +14,6 @@ export class QuizRepo implements IQuizRepo {
     @inject(TYPES.IDifficultyRepo) private _difficultyRepo: IDifficultyRepo;
     @inject(TYPES.IQuestionRepo) private _questionRepo: IQuestionRepo;
     @inject(TYPES.IAnswerRepo) private _answerRepo: IAnswerRepo;
-    @inject(TYPES.IUserRepo) private _userRepo: IUserRepo;
 
     async initializeObj(
         quizName: string,

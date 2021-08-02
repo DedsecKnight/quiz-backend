@@ -2,10 +2,7 @@ import { injectable } from "inversify";
 import {
     Arg,
     Ctx,
-    Field,
     FieldResolver,
-    ID,
-    InputType,
     Int,
     Query,
     Resolver,
