@@ -24,6 +24,7 @@ import { SubmitInput } from "./submission.types";
 import { checkAuthorization } from "../../middlewares/auth";
 import { IQuizRepo } from "../../interfaces/IQuizRepo";
 import { UserInputError } from "apollo-server";
+import { User } from "../../entity/User";
 
 @Resolver(Submission)
 export class SubmissionResolver {
@@ -120,5 +121,19 @@ export class SubmissionResolver {
             console.log(error);
             throw new Error("Database Error");
         }
+    }
+
+    @FieldResolver(() => User)
+    async author(
+        @Ctx() context: TContext,
+        @Root() submission: Submission
+    ): Promise<User> {
+        const authorObj = await context.submissionAuthorLoader
+            .load(submission.id)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
+        return authorObj;
     }
 }

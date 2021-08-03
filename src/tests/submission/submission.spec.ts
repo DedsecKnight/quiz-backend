@@ -82,6 +82,9 @@ describe("Submission Queries", () => {
                 query SubmissionById($id: Float!) {
                     submissionById(id: $id) {
                         score
+                        author {
+                            name
+                        }
                         answers {
                             answer
                             isCorrect
@@ -100,6 +103,9 @@ describe("Submission Queries", () => {
         const { submissionById } = data.data;
         expect(submissionById).toEqual({
             score: 100,
+            author: {
+                name: "Test123",
+            },
             answers: [
                 {
                     answer: "Answer 3",

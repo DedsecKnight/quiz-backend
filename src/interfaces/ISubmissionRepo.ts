@@ -21,6 +21,10 @@ export interface ISubmissionRepo {
     // (With answers eagerly loaded)
     findByIdsWithAnswers: (ids: number[]) => Promise<Submission[]>;
 
+    // Find list of submissions with a given id list
+    // (With user eagerly loaded)
+    findByIdsWithUser: (ids: number[]) => Promise<Submission[]>;
+
     // Get score of the submission with given id
     getScore: (submissionId: number) => Promise<number>;
 
