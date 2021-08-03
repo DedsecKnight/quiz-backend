@@ -37,13 +37,11 @@ export class UserResolver {
 
     @Query(() => [User])
     async users(): Promise<User[]> {
-        try {
-            const users = await this._userRepo.getAll();
-            return users;
-        } catch (error) {
+        const users = await this._userRepo.getAll().catch((error) => {
             console.log(error);
             throw new Error("Database Error");
-        }
+        });
+        return users;
     }
 
     @Mutation(() => AuthResponse)
