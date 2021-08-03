@@ -28,6 +28,7 @@ import {
     validateLoginInput,
     validateCredentialsInput,
 } from "../../middlewares/validateAuthData";
+import { INF, SALT_ROUND } from "./user.constants";
 
 @Resolver(User)
 export class UserResolver {
@@ -90,9 +91,25 @@ export class UserResolver {
 
     @Query(() => [Submission])
     @UseMiddleware(checkAuthorization)
-    async mySubmissions(@Ctx() context: TContext): Promise<Submission[]> {
+    async mySubmissions(
+        @Ctx() context: TContext,
+        @Arg("limit", { nullable: true }) limit: number | undefined,
+        @Arg("offset", { nullable: true }) offset: number | undefined
+    ): Promise<Submission[]> {
+        // If there is no offset, it is assumed that request wants to fetch
+        // from the first entry
+        if (offset === undefined) offset = 0;
+
+        // If there is no limit, it is assumed that request wants to fetch
+        // an infinite amount of entries
+        if (limit === undefined) limit = INF;
+
         const submissions = await this._submissionRepo
-            .getUserSubmissions(context.user.id)
+            .getUserSubmissionsWithOffsetAndLimit(
+                context.user.id,
+                offset,
+                limit
+            )
             .catch((error) => {
                 console.log(error);
                 throw new Error("Database Error");
@@ -137,7 +154,7 @@ export class UserResolver {
             });
 
         const hashedPassword = await bcrypt
-            .hash(password, 10)
+            .hash(password, SALT_ROUND)
             .catch((error) => {
                 console.log(error);
                 throw new Error("Database Error");
@@ -184,7 +201,7 @@ export class UserResolver {
             const user = await this._userRepo.findById(context.user.id);
 
             user.email = email;
-            user.password = await bcrypt.hash(password, 10);
+            user.password = await bcrypt.hash(password, SALT_ROUND);
             user.name = name;
 
             // May need to change this to abide by SOLID rule
