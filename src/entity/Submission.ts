@@ -20,7 +20,6 @@ export class Submission extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Field(() => ID)
     @Column()
     userId: number;
     @ManyToOne(() => User, (user: User) => user.submissions)

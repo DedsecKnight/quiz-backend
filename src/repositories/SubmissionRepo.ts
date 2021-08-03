@@ -116,4 +116,11 @@ export class SubmissionRepo implements ISubmissionRepo {
             .groupBy("submission.id")
             .getQuery();
     }
+
+    findByIdsWithUser(ids: number[]): Promise<Submission[]> {
+        return Submission.createQueryBuilder("submission")
+            .leftJoinAndSelect("submission.user", "user")
+            .where("submission.id in (:...ids)", { ids })
+            .getMany();
+    }
 }

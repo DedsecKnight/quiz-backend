@@ -7,6 +7,7 @@ import { QuestionCorrectAnswerLoader } from "../data-loader/QuestionCorrectAnswe
 import { QuizLoader } from "../data-loader/QuizLoader";
 import { QuizQuestionsLoader } from "../data-loader/QuizQuestionsLoader";
 import { SubmissionAnswersLoader } from "../data-loader/SubmissionAnswersLoader";
+import { SubmissionAuthorLoader } from "../data-loader/SubmissionAuthorLoader";
 import { SubmissionScoreLoader } from "../data-loader/SubmissionScoreLoader";
 import { UserLoader } from "../data-loader/UserLoader";
 
@@ -31,4 +32,5 @@ export interface TContext extends Request {
     submissionAnswersLoader: ReturnType<typeof SubmissionAnswersLoader>;
     submissionScoreLoader: ReturnType<typeof SubmissionScoreLoader>;
     questionCorrectAnswerLoader: ReturnType<typeof QuestionCorrectAnswerLoader>;
+    submissionAuthorLoader: ReturnType<typeof SubmissionAuthorLoader>;
 }
