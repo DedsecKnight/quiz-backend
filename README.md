@@ -4,7 +4,5 @@ This is the back-end of the Quiz? project. Check out the front-end [here](https:
 
 ## Steps to run this project:
 
-1. Run `npm i` command
-2. Setup database settings inside `ormconfig.json` file
-3. Run `npm start` command
-4. Go to `https://localhost:5000` and start making GraphQL queries.
+1. Run `docker-compose up --build` command
+2. Go to `https://localhost:5000` and start making GraphQL queries.
