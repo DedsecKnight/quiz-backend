@@ -23,7 +23,7 @@ const { lazyInject } = getDecorators(container);
 import { SubmitInput } from "./submission.types";
 import { checkAuthorization } from "../../middlewares/auth";
 import { IQuizRepo } from "../../interfaces/IQuizRepo";
-import { UserInputError } from "apollo-server";
+import { ForbiddenError, UserInputError } from "apollo-server";
 import { User } from "../../entity/User";
 
 @Resolver(Submission)
@@ -66,8 +66,12 @@ export class SubmissionResolver {
         }
     }
 
+    @UseMiddleware(checkAuthorization)
     @Query(() => Submission)
-    async submissionById(@Arg("id") id: number): Promise<Submission> {
+    async submissionById(
+        @Ctx() context: TContext,
+        @Arg("id") id: number
+    ): Promise<Submission> {
         const submission = await this._submissionRepo
             .findById(id)
             .catch((error) => {
@@ -76,6 +80,11 @@ export class SubmissionResolver {
             });
         if (!submission)
             throw new ResourceNotFound("Submission does not exist");
+        if (submission.userId !== context.user.id) {
+            throw new ForbiddenError(
+                "You are not allowed to view other people's submission"
+            );
+        }
         return submission;
     }
 
