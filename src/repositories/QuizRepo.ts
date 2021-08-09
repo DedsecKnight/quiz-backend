@@ -74,6 +74,55 @@ export class QuizRepo implements IQuizRepo {
 
         return newQuiz;
     }
+
+    async updateQuiz(id: number, quizArg: IQuizArgs): Promise<Quiz> {
+        // Destruct parameter
+        const { quizName, questions, difficulty, category } = quizArg;
+
+        // Get difficulty object
+        const diffObj = await this._difficultyRepo.getObjByType(difficulty);
+
+        // Find or create new Category
+        const catObj = await this._categoryRepo.findOrCreate(category);
+
+        // Get original quiz
+        const quiz = await Quiz.findOne({
+            where: { id },
+            relations: [
+                "questions",
+                "questions.answers",
+                "difficulty",
+                "category",
+            ],
+        });
+
+        // Update difficulty, category, and quizName
+        await Quiz.createQueryBuilder("quiz")
+            .update()
+            .set({
+                difficultyId: diffObj.id,
+                categoryId: catObj.id,
+                quizName: quizName,
+            })
+            .where("id = :id", { id })
+            .execute();
+
+        // Update question contents
+        for (let i = 0; i < quiz.questions.length; i++) {
+            quiz.questions[i].question = questions[i].question;
+            for (let j = 0; j < quiz.questions[i].answers.length; j++) {
+                quiz.questions[i].answers[j].answer =
+                    questions[i].answers[j].answer;
+                quiz.questions[i].answers[j].isCorrect =
+                    questions[i].answers[j].isCorrect;
+                await quiz.questions[i].answers[j].save();
+            }
+            await quiz.questions[i].save();
+        }
+
+        return quiz;
+    }
+
     async findAll(searchQuery: string): Promise<Quiz[]> {
         if (searchQuery === "") return Quiz.find();
         return Quiz.createQueryBuilder("quiz")

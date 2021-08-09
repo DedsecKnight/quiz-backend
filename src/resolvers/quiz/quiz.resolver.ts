@@ -52,6 +52,23 @@ export class QuizResolver {
         }
     }
 
+    @Mutation(() => Quiz)
+    @UseMiddleware(checkAuthorization, validateCreateQuizData)
+    async updateQuiz(
+        @Ctx() context: TContext,
+        @Arg("quiz") quizArg: QuizArgs,
+        @Arg("quizId") id: number
+    ) {
+        quizArg.userId = context.user.id;
+        const updatedQuiz = await this._quizRepo
+            .updateQuiz(id, quizArg)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
+        return updatedQuiz;
+    }
+
     @Query(() => [Quiz])
     async quizzesByDifficulty(
         @Arg("difficulty") difficulty: string

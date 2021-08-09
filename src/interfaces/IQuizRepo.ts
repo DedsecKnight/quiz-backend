@@ -23,6 +23,9 @@ export interface IQuizRepo {
     // Create a new Quiz
     createQuiz: (quizArg: IQuizArgs) => Promise<Quiz>;
 
+    // Update an existing quiz
+    updateQuiz: (id: number, quizArg: IQuizArgs) => Promise<Quiz>;
+
     // Get all quizzes
     // searchQuery: if blank, then fetch all quizzes, else fetch only those that matches searchQuery
     findAll: (searchQuery: string) => Promise<Quiz[]>;
