@@ -92,15 +92,10 @@ export class QuizRepo implements IQuizRepo {
         });
 
         // Update difficulty, category, and quizName
-        await Quiz.createQueryBuilder("quiz")
-            .update()
-            .set({
-                difficultyId: diffObj.id,
-                categoryId: catObj.id,
-                quizName: quizName,
-            })
-            .where("id = :id", { id })
-            .execute();
+        quiz.difficultyId = diffObj.id;
+        quiz.categoryId = catObj.id;
+        quiz.quizName = quizName;
+        await quiz.save();
 
         // Update question contents
         for (let i = 0; i < quiz.questions.length; i++) {
