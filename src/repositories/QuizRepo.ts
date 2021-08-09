@@ -88,12 +88,7 @@ export class QuizRepo implements IQuizRepo {
         // Get original quiz
         const quiz = await Quiz.findOne({
             where: { id },
-            relations: [
-                "questions",
-                "questions.answers",
-                "difficulty",
-                "category",
-            ],
+            relations: ["questions", "questions.answers"],
         });
 
         // Update difficulty, category, and quizName
