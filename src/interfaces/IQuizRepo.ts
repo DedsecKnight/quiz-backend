@@ -48,6 +48,14 @@ export interface IQuizRepo {
     // Find all quizzes that is written by given User
     findByAuthor: (authorId: number) => Promise<Quiz[]>;
 
+    // Find all quizzes that is written by given User
+    // (with limit and offset included)
+    findByAuthorWithLimitAndOffset: (
+        authorId: number,
+        limit: number,
+        offset: number
+    ) => Promise<Quiz[]>;
+
     // Find a quiz with a given name
     findByName: (name: string) => Promise<Quiz>;
 

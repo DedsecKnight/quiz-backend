@@ -104,6 +104,18 @@ export class QuizRepo implements IQuizRepo {
         });
     }
 
+    async findByAuthorWithLimitAndOffset(
+        authorId: number,
+        limit: number,
+        offset: number
+    ): Promise<Quiz[]> {
+        return Quiz.createQueryBuilder("quiz")
+            .where("quiz.authorId = :authorId", { authorId })
+            .skip(offset)
+            .take(limit)
+            .getMany();
+    }
+
     async findByName(name: string): Promise<Quiz> {
         return Quiz.createQueryBuilder("quiz")
             .where("LOWER(quiz.quizName) = LOWER(:name)", { name })
