@@ -26,7 +26,7 @@ import { User } from "../../entity/User";
 import { Difficulty } from "../../entity/Difficulty";
 import { Category } from "../../entity/Category";
 import { Question } from "../../entity/Question";
-import { UserInputError } from "apollo-server";
+import { ForbiddenError, UserInputError } from "apollo-server";
 const { lazyInject } = getDecorators(container);
 
 @Resolver(Quiz)
@@ -50,6 +50,30 @@ export class QuizResolver {
             console.log(error);
             throw new Error("Database Error");
         }
+    }
+
+    @Mutation(() => Quiz)
+    @UseMiddleware(checkAuthorization, validateCreateQuizData)
+    async updateQuiz(
+        @Ctx() context: TContext,
+        @Arg("quiz") quizArg: QuizArgs,
+        @Arg("quizId") id: number
+    ) {
+        const currentQuiz = await this._quizRepo.findById(id);
+        if (currentQuiz.authorId !== context.user.id) {
+            throw new ForbiddenError(
+                "You are not allowed to make changes to quizzes authored by other people"
+            );
+        }
+
+        quizArg.userId = context.user.id;
+        const updatedQuiz = await this._quizRepo
+            .updateQuiz(id, quizArg)
+            .catch((error) => {
+                console.log(error);
+                throw new Error("Database Error");
+            });
+        return updatedQuiz;
     }
 
     @Query(() => [Quiz])

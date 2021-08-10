@@ -488,6 +488,63 @@ describe("User-related Quiz Queries", () => {
     });
 });
 
+describe("Update Quiz", () => {
+    test("Update exisiting quiz", async () => {
+        const data = await server.executeOperation({
+            query: gql`
+                mutation UpdateQuiz($quizArg: QuizArgs!, $quizId: Float!) {
+                    updateQuiz(quizId: $quizId, quiz: $quizArg) {
+                        quizName
+                        questions {
+                            question
+                        }
+                    }
+                }
+            `,
+            variables: {
+                quizArg: {
+                    quizName: "New Quiz (Editted Name)",
+                    category: "Test",
+                    difficulty: "Easy",
+                    questions: [
+                        {
+                            question: "Test Question 1",
+                            answers: [
+                                {
+                                    answer: "Answer 1",
+                                    isCorrect: false,
+                                },
+                                {
+                                    answer: "Answer 2",
+                                    isCorrect: false,
+                                },
+                                {
+                                    answer: "Answer 3",
+                                    isCorrect: true,
+                                },
+                                {
+                                    answer: "Answer 4",
+                                    isCorrect: false,
+                                },
+                            ],
+                        },
+                    ],
+                },
+                quizId: 1,
+            },
+        });
+        const { updateQuiz } = data.data;
+        expect(updateQuiz).toEqual({
+            quizName: "New Quiz (Editted Name)",
+            questions: [
+                {
+                    question: "Test Question 1",
+                },
+            ],
+        });
+    });
+});
+
 afterAll(async () => {
     await connection.dropDatabase();
     await connection.close();

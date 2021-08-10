@@ -179,9 +179,16 @@ export class UserResolver {
 
     @Query(() => [Quiz])
     @UseMiddleware(checkAuthorization)
-    async myQuizzes(@Ctx() context: TContext): Promise<Quiz[]> {
+    async myQuizzes(
+        @Ctx() context: TContext,
+        @Arg("offset", { nullable: true }) offset: number | undefined,
+        @Arg("limit", { nullable: true }) limit: number | undefined
+    ): Promise<Quiz[]> {
+        if (offset === undefined) offset = 0;
+        if (limit === undefined) limit = INF;
+
         const quizzes = this._quizRepo
-            .findByAuthor(context.user.id)
+            .findByAuthorWithLimitAndOffset(context.user.id, limit, offset)
             .catch((error) => {
                 console.log(error);
                 throw new Error("Database Error");

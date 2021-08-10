@@ -23,6 +23,9 @@ export interface IQuizRepo {
     // Create a new Quiz
     createQuiz: (quizArg: IQuizArgs) => Promise<Quiz>;
 
+    // Update an existing quiz
+    updateQuiz: (id: number, quizArg: IQuizArgs) => Promise<Quiz>;
+
     // Get all quizzes
     // searchQuery: if blank, then fetch all quizzes, else fetch only those that matches searchQuery
     findAll: (searchQuery: string) => Promise<Quiz[]>;
@@ -47,6 +50,14 @@ export interface IQuizRepo {
 
     // Find all quizzes that is written by given User
     findByAuthor: (authorId: number) => Promise<Quiz[]>;
+
+    // Find all quizzes that is written by given User
+    // (with limit and offset included)
+    findByAuthorWithLimitAndOffset: (
+        authorId: number,
+        limit: number,
+        offset: number
+    ) => Promise<Quiz[]>;
 
     // Find a quiz with a given name
     findByName: (name: string) => Promise<Quiz>;
