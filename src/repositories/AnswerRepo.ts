@@ -40,4 +40,12 @@ export class AnswerRepo implements IAnswerRepo {
 
         return data.generatedMaps.map((obj) => parseInt(obj.id));
     }
+
+    async removeByQuestionIds(questionIds: number[]): Promise<void> {
+        if (questionIds.length === 0) return;
+        await Answer.createQueryBuilder("answer")
+            .delete()
+            .where("answer.questionId in (:...ids)", { ids: questionIds })
+            .execute();
+    }
 }

@@ -543,6 +543,27 @@ describe("Update Quiz", () => {
             ],
         });
     });
+
+    test("Remove Quiz", async () => {
+        const data = await server.executeOperation({
+            query: gql`
+                mutation RemoveQuiz($quizId: Float!) {
+                    removeQuiz(quizId: $quizId) {
+                        statusCode
+                        message
+                    }
+                }
+            `,
+            variables: {
+                quizId: 1,
+            },
+        });
+        const { removeQuiz } = data.data;
+        expect(removeQuiz).toEqual({
+            statusCode: 200,
+            message: "Quiz removal successful",
+        });
+    });
 });
 
 afterAll(async () => {

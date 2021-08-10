@@ -123,4 +123,24 @@ export class SubmissionRepo implements ISubmissionRepo {
             .where("submission.id in (:...ids)", { ids })
             .getMany();
     }
+
+    async removeAnswersByQuizIds(quizIds: number[]): Promise<void> {
+        const submissions = await Submission.createQueryBuilder("submission")
+            .innerJoinAndSelect("submission.answers", "answer")
+            .where("submission.quizId in (:...ids)", { ids: quizIds })
+            .getMany();
+
+        for (let submission of submissions) {
+            submission.answers = [];
+            await submission.save();
+        }
+    }
+
+    async removeByQuizIds(quizIds: number[]): Promise<void> {
+        if (quizIds.length === 0) return;
+        await Submission.createQueryBuilder("submission")
+            .delete()
+            .where("submission.quizId in (:...ids)", { ids: quizIds })
+            .execute();
+    }
 }

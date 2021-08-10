@@ -6,6 +6,7 @@ import { CountData } from "../interfaces/ICountData";
 import { IDifficultyRepo } from "../interfaces/IDifficultyRepo";
 import { IQuestionRepo } from "../interfaces/IQuestionRepo";
 import { IQuizArgs, IQuizRepo } from "../interfaces/IQuizRepo";
+import { ISubmissionRepo } from "../interfaces/ISubmissionRepo";
 import { TYPES } from "../inversify.types";
 
 @injectable()
@@ -14,6 +15,7 @@ export class QuizRepo implements IQuizRepo {
     @inject(TYPES.IDifficultyRepo) private _difficultyRepo: IDifficultyRepo;
     @inject(TYPES.IQuestionRepo) private _questionRepo: IQuestionRepo;
     @inject(TYPES.IAnswerRepo) private _answerRepo: IAnswerRepo;
+    @inject(TYPES.ISubmissionRepo) private _submissionRepo: ISubmissionRepo;
 
     async initializeObj(
         quizName: string,
@@ -229,5 +231,19 @@ export class QuizRepo implements IQuizRepo {
     ): Promise<boolean> {
         const quizList = await this._answerRepo.mapAnswerToQuiz(answerIds);
         return quizList.filter((qId) => qId !== parseInt(quizId)).length === 0;
+    }
+
+    async removeQuiz(quizId: number): Promise<void> {
+        await this._submissionRepo.removeAnswersByQuizIds([quizId]);
+        const questions = await this._questionRepo.findByQuizId(quizId);
+        await this._answerRepo.removeByQuestionIds(
+            questions.map((question) => question.id)
+        );
+        await this._questionRepo.removeByQuizIds([quizId]);
+        await this._submissionRepo.removeByQuizIds([quizId]);
+        await Quiz.createQueryBuilder("quiz")
+            .delete()
+            .where("id = :id", { id: quizId })
+            .execute();
     }
 }
