@@ -1,9 +1,18 @@
-import { Field, ID, InputType } from "type-graphql";
+import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import {
     IAnswerArgs,
     IQuestionArgs,
     IQuizArgs,
 } from "../../interfaces/IQuizRepo";
+
+@ObjectType()
+export class DeleteResponse {
+    @Field(() => Int)
+    statusCode: number;
+
+    @Field()
+    message: string;
+}
 
 @InputType()
 class AnswerArgs implements IAnswerArgs {

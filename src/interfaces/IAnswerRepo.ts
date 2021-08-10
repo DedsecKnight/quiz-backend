@@ -19,4 +19,7 @@ export interface IAnswerRepo {
             questionId: number;
         }>
     ) => Promise<number[]>;
+
+    // Remove all answer object that are associated with given question Ids
+    removeByQuestionIds: (questionIds: number[]) => Promise<void>;
 }

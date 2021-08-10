@@ -91,4 +91,7 @@ export interface IQuizRepo {
         answerIds: number[],
         quizId: string
     ) => Promise<boolean>;
+
+    // Remove quiz object
+    removeQuiz: (quizId: number) => Promise<void>;
 }

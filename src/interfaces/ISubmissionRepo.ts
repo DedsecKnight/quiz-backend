@@ -54,4 +54,11 @@ export interface ISubmissionRepo {
 
     // Return SQL query to fetch score of all submissions
     getScoreAllSubmissions: () => string;
+
+    // Remove many-to-many relationship between Submission and Answer
+    // of all submissions that are associated with given quiz id
+    removeAnswersByQuizIds: (quizIds: number[]) => Promise<void>;
+
+    // Remove all submissions with given ids
+    removeByQuizIds: (quizIds: number[]) => Promise<void>;
 }

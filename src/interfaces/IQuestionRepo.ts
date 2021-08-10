@@ -19,4 +19,7 @@ export interface IQuestionRepo {
     initializeObjs: (
         questions: Array<{ question: string; quizId: number }>
     ) => Promise<number[]>;
+
+    // Remove all question object that belongs to given quiz Ids
+    removeByQuizIds: (quizIds: number[]) => Promise<void>;
 }

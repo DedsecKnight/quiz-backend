@@ -11,7 +11,7 @@ import {
 import { Quiz } from "../../entity/Quiz";
 import { IQuizRepo } from "../../interfaces/IQuizRepo";
 import { TYPES } from "../../inversify.types";
-import { QuizArgs } from "./quiz.types";
+import { DeleteResponse, QuizArgs } from "./quiz.types";
 
 import getDecorators from "inversify-inject-decorators";
 import { container } from "../../inversify.config";
@@ -27,6 +27,10 @@ import { Difficulty } from "../../entity/Difficulty";
 import { Category } from "../../entity/Category";
 import { Question } from "../../entity/Question";
 import { ForbiddenError, UserInputError } from "apollo-server";
+import {
+    QUIZ_REMOVAL_SUCCESS_MESSAGE,
+    SUCCESS_STATUS_CODE,
+} from "./quiz.constants";
 const { lazyInject } = getDecorators(container);
 
 @Resolver(Quiz)
@@ -74,6 +78,31 @@ export class QuizResolver {
                 throw new Error("Database Error");
             });
         return updatedQuiz;
+    }
+
+    @Mutation(() => DeleteResponse)
+    @UseMiddleware(checkAuthorization)
+    async removeQuiz(
+        @Ctx() context: TContext,
+        @Arg("quizId") id: number
+    ): Promise<DeleteResponse> {
+        const quiz = await this._quizRepo.findById(id).catch((error) => {
+            console.log(error);
+            throw new Error("Database Error");
+        });
+        if (quiz.authorId !== context.user.id) {
+            throw new ForbiddenError(
+                "You are not allowed to make changes to quizzes authored by other people"
+            );
+        }
+        await this._quizRepo.removeQuiz(id).catch((error) => {
+            console.log(error);
+            throw new Error("Database Error");
+        });
+        return {
+            statusCode: SUCCESS_STATUS_CODE,
+            message: QUIZ_REMOVAL_SUCCESS_MESSAGE,
+        };
     }
 
     @Query(() => [Quiz])

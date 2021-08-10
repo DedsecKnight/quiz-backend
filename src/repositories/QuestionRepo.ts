@@ -34,4 +34,12 @@ export class QuestionRepo implements IQuestionRepo {
             .execute();
         return data.generatedMaps.map((obj) => parseInt(obj.id));
     }
+
+    async removeByQuizIds(quizIds: number[]): Promise<void> {
+        if (quizIds.length === 0) return;
+        await Question.createQueryBuilder("question")
+            .delete()
+            .where("question.quizId in (:...ids)", { ids: quizIds })
+            .execute();
+    }
 }
